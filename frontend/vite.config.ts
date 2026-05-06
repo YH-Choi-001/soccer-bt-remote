@@ -1,11 +1,11 @@
 import tailwindcss from '@tailwindcss/vite';
-import mkcert from 'vite-plugin-mkcert';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
-	plugins: [mkcert(), tailwindcss(), sveltekit()],
+	plugins: [basicSsl(), tailwindcss(), sveltekit()],
 	server: { https: true },
 	test: {
 		expect: { requireAssertions: true },

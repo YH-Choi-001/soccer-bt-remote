@@ -35,6 +35,9 @@ importers:
       '@types/node':
         specifier: ^24
         version: 24.12.2
+      '@vitejs/plugin-basic-ssl':
+        specifier: ^2.3.0
+        version: 2.3.0(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0))
       '@vitest/browser-playwright':
         specifier: ^4.1.3
         version: 4.1.5(playwright@1.59.1)(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0))(vitest@4.1.5)
@@ -80,9 +83,6 @@ importers:
       vite:
         specifier: ^8.0.7
         version: 8.0.10(@types/node@24.12.2)(jiti@2.7.0)
-      vite-plugin-mkcert:
-        specifier: ^2.0.0
-        version: 2.0.0(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0))
       vitest:
         specifier: ^4.1.3
         version: 4.1.5(@types/node@24.12.2)(@vitest/browser-playwright@4.1.5)(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0))
@@ -519,6 +519,12 @@ packages:
   '@typescript-eslint/visitor-keys@8.59.2':
     resolution: {integrity: sha512-NwjLUnGy8/Zfx23fl50tRC8rYaYnM52xNRYFAXvmiil9yh1+K6aRVQMnzW6gQB/1DLgWt977lYQn7C+wtgXZiA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@vitejs/plugin-basic-ssl@2.3.0':
+    resolution: {integrity: sha512-bdyo8rB3NnQbikdMpHaML9Z1OZPBu6fFOBo+OtxsBlvMJtysWskmBcnbIDhUqgC8tcxNv/a+BcV5U+2nQMm1OQ==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
 
   '@vitest/browser-playwright@4.1.5':
     resolution: {integrity: sha512-CWy0lBQJq97nionyJJdnaU4961IXTl43a7UCu5nHy51IoKxAt6PVIJLo+76rVl7KOOgcWHNkG4kbJu/pW7knvA==}
@@ -1164,10 +1170,6 @@ packages:
   std-env@4.1.0:
     resolution: {integrity: sha512-Rq7ybcX2RuC55r9oaPVEW7/xu3tj8u4GeBYHBWCychFtzMIr86A7e3PPEBPT37sHStKX3+TiX/Fr/ACmJLVlLQ==}
 
-  supports-color@10.2.2:
-    resolution: {integrity: sha512-SS+jx45GF1QjgEXQx4NJZV9ImqmO2NPz5FNsIHrsDjh2YsHnawpan7SNQ1o8NuhrbHZy9AZhIoCUiCeaW/C80g==}
-    engines: {node: '>=18'}
-
   svelte-check@4.4.8:
     resolution: {integrity: sha512-67adfgBox5eNSNIvIIwgFizKGdcRrGpiMoNO2obHcYuLz7iTa8Xgm/NGU3ntMFnNm8K1grFOIG6HhMLX/vcN8w==}
     engines: {node: '>= 18.0.0'}
@@ -1243,21 +1245,11 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@8.2.0:
-    resolution: {integrity: sha512-Z+4Hx9GE26Lh9Upwfnc8C7SsrpBPGaM/Gm6kMFtiG7c+5IvQKlXi/t+9x9DrrCh29cww5TSP9YdVaBcnLDs5fQ==}
-    engines: {node: '>=22.19.0'}
-
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
-
-  vite-plugin-mkcert@2.0.0:
-    resolution: {integrity: sha512-+5roXeOT91WRO3NKFRcDZKEHhze/1uahSSKOIq3vz2w19mJojBcyOo0JyLRHbME31Ym5qPRNJ8CwKO0mu4RJ2Q==}
-    engines: {node: '>=22.19.0'}
-    peerDependencies:
-      vite: '>=3'
 
   vite@8.0.10:
     resolution: {integrity: sha512-rZuUu9j6J5uotLDs+cAA4O5H4K1SfPliUlQwqa6YEwSrWDZzP4rhm00oJR5snMewjxF5V/K3D4kctsUTsIU9Mw==}
@@ -1430,7 +1422,7 @@ snapshots:
   '@eslint/config-array@0.23.5':
     dependencies:
       '@eslint/object-schema': 3.0.5
-      debug: 4.4.3(supports-color@10.2.2)
+      debug: 4.4.3
       minimatch: 10.2.5
     transitivePeerDependencies:
       - supports-color
@@ -1719,7 +1711,7 @@ snapshots:
       '@typescript-eslint/types': 8.59.2
       '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.59.2
-      debug: 4.4.3(supports-color@10.2.2)
+      debug: 4.4.3
       eslint: 10.3.0(jiti@2.7.0)
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -1729,7 +1721,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/types': 8.59.2
-      debug: 4.4.3(supports-color@10.2.2)
+      debug: 4.4.3
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -1748,7 +1740,7 @@ snapshots:
       '@typescript-eslint/types': 8.59.2
       '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.2(eslint@10.3.0(jiti@2.7.0))(typescript@6.0.3)
-      debug: 4.4.3(supports-color@10.2.2)
+      debug: 4.4.3
       eslint: 10.3.0(jiti@2.7.0)
       ts-api-utils: 2.5.0(typescript@6.0.3)
       typescript: 6.0.3
@@ -1763,7 +1755,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/types': 8.59.2
       '@typescript-eslint/visitor-keys': 8.59.2
-      debug: 4.4.3(supports-color@10.2.2)
+      debug: 4.4.3
       minimatch: 10.2.5
       semver: 7.7.4
       tinyglobby: 0.2.16
@@ -1787,6 +1779,10 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.59.2
       eslint-visitor-keys: 5.0.1
+
+  '@vitejs/plugin-basic-ssl@2.3.0(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0))':
+    dependencies:
+      vite: 8.0.10(@types/node@24.12.2)(jiti@2.7.0)
 
   '@vitest/browser-playwright@4.1.5(playwright@1.59.1)(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0))(vitest@4.1.5)':
     dependencies:
@@ -1904,11 +1900,9 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  debug@4.4.3(supports-color@10.2.2):
+  debug@4.4.3:
     dependencies:
       ms: 2.1.3
-    optionalDependencies:
-      supports-color: 10.2.2
 
   deep-is@0.1.4: {}
 
@@ -1981,7 +1975,7 @@ snapshots:
       '@types/estree': 1.0.8
       ajv: 6.15.0
       cross-spawn: 7.0.6
-      debug: 4.4.3(supports-color@10.2.2)
+      debug: 4.4.3
       escape-string-regexp: 4.0.0
       eslint-scope: 9.1.2
       eslint-visitor-keys: 5.0.1
@@ -2336,8 +2330,6 @@ snapshots:
 
   std-env@4.1.0: {}
 
-  supports-color@10.2.2: {}
-
   svelte-check@4.4.8(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@6.0.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -2426,20 +2418,11 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@8.2.0: {}
-
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
-
-  vite-plugin-mkcert@2.0.0(vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0)):
-    dependencies:
-      debug: 4.4.3(supports-color@10.2.2)
-      supports-color: 10.2.2
-      undici: 8.2.0
-      vite: 8.0.10(@types/node@24.12.2)(jiti@2.7.0)
 
   vite@8.0.10(@types/node@24.12.2)(jiti@2.7.0):
     dependencies:
