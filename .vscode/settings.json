@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "js/ts.tsdk.path": "frontend/node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+  "mypy-type-checker.cwd": "${workspaceFolder}/backend",
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "mypy-type-checker.preferDaemon": true,
+  "graphql-config.load.rootDir": "frontend",
+}
