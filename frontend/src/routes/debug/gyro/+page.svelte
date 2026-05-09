@@ -1,5 +1,6 @@
 <!--
-Home page.
+Gyro debug page.
+Shows raw orientation data.
 -->
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <!--
-Home page.
+Mobile demo page.
 -->
 
 <script lang="ts">
