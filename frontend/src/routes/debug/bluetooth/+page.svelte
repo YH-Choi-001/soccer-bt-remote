@@ -44,23 +44,27 @@
   )
 
   // ── Direction helpers (replaces dynamic CSS classes) ──────────────────────
-  function colorScheme(dir: Direction): string {
-    const colorSchemes = {
-      rx: 'info',
-      tx: 'success',
-      system: 'primary',
-      error: 'error',
-    }
-    return colorSchemes[dir]
-  }
+  // NOTE: Full class strings must be static literals so Tailwind's scanner
+  // can find and generate the CSS. Dynamic interpolation (e.g. `text-${color}`)
+  // hides the class names from Tailwind at build time → no styles applied.
   function prefixClass(dir: Direction): string {
-    const color = colorScheme(dir)
-    return `text-${color} bg-${color}/15`
+    const classes: Record<Direction, string> = {
+      rx: 'text-info bg-info/15',
+      tx: 'text-success bg-success/15',
+      system: 'text-primary bg-primary/15',
+      error: 'text-error bg-error/15',
+    }
+    return classes[dir]
   }
 
   function msgClass(dir: Direction): string {
-    const color = colorScheme(dir)
-    return `text-${color}`
+    const classes: Record<Direction, string> = {
+      rx: 'text-info',
+      tx: 'text-success',
+      system: 'text-primary',
+      error: 'text-error',
+    }
+    return classes[dir]
   }
 
   function dirLabel(dir: Direction): string {
