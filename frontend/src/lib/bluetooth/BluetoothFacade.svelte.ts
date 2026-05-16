@@ -95,4 +95,8 @@ export class BluetoothFacade {
   static uuid16To128(uuid: string): BluetoothServiceUUID {
     return `0000${uuid}-0000-1000-8000-00805f9b34fb`
   }
+
+  static isSupported(): boolean {
+    return 'bluetooth' in navigator
+  }
 }

@@ -5,6 +5,7 @@
 
 <script lang="ts">
   import { BluetoothFacade } from '$lib/bluetooth/BluetoothFacade.svelte'
+  import BluetoothUnsupportedDialog from '$lib/components/bluetooth/BluetoothUnsupportedDialog.svelte'
 
   // ── Nordic UART Service (NUS) UUIDs ───────────────────────────────────────
   // These are the standard BLE UART profile UUIDs. Change if your device uses
@@ -151,6 +152,8 @@
 <svelte:head>
   <title>BT Terminal | Debug</title>
 </svelte:head>
+
+<BluetoothUnsupportedDialog />
 
 <!-- data-theme="night" scopes the DaisyUI dark terminal theme to this page -->
 <div
