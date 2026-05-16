@@ -39,58 +39,44 @@
 
   // ── DaisyUI badge class for connection status ──────────────────────────────
   const statusBadgeClass = $derived(
-    device == null
-      ? 'badge-ghost border-base-300'
-      : isConnecting
-        ? 'badge-warning'
-        : isConnected
-          ? 'badge-success'
-          : 'badge-ghost border-base-300'
+    isConnecting ? 'badge-warning' : isConnected ? 'badge-success' : 'badge-ghost border-base-300'
   )
 
   // ── Direction helpers (replaces dynamic CSS classes) ──────────────────────
-  function prefixClass(dir: Direction): string {
-    switch (dir) {
-      case 'rx':
-        return 'text-success bg-success/15'
-      case 'tx':
-        return 'text-info bg-info/15'
-      case 'system':
-        return 'text-secondary bg-secondary/15'
-      case 'error':
-        return 'text-error bg-error/15'
+  function colorScheme(dir: Direction): string {
+    const colorSchemes = {
+      rx: 'info',
+      tx: 'success',
+      system: 'primary',
+      error: 'error',
     }
+    return colorSchemes[dir]
+  }
+  function prefixClass(dir: Direction): string {
+    const color = colorScheme(dir)
+    return `text-${color} bg-${color}/15`
   }
 
   function msgClass(dir: Direction): string {
-    switch (dir) {
-      case 'rx':
-        return 'text-success/80'
-      case 'tx':
-        return 'text-info/80'
-      case 'system':
-        return 'text-secondary/80'
-      case 'error':
-        return 'text-error/80'
-    }
+    const color = colorScheme(dir)
+    return `text-${color}`
   }
 
   function dirLabel(dir: Direction): string {
-    switch (dir) {
-      case 'rx':
-        return 'RX'
-      case 'tx':
-        return 'TX'
-      case 'system':
-        return 'SYS'
-      case 'error':
-        return 'ERR'
+    const labels = {
+      rx: 'RX',
+      tx: 'TX',
+      system: 'SYS',
+      error: 'ERR',
     }
+    return labels[dir]
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   function now() {
-    return new Date().toLocaleTimeString('en-GB', {
+    return new Date().toLocaleTimeString(undefined, {
+      timeZone,
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
