@@ -5,33 +5,105 @@ Mobile demo page.
 <script lang="ts">
   import { requestListenToOrientation } from '$lib/orientation/orientation'
 
-  let alpha = $state(0)
-  let beta = $state(0)
-  let gamma = $state(0)
-  let timeStamp = $state(0)
+  const MAX_TILT_ANGLE: number = 45
+  const ABS_MAX_SPEED: number = 255
+  const ANGLE_FIX: number = 2
 
-  function handleOrientation(e: DeviceOrientationEvent) {
+  let isHeadingLocked: boolean = $state(false)
+  let lockedHeading: number = $state(0)
+
+  let alpha: number = $state(0)
+  let beta: number = $state(0)
+  let gamma: number = $state(0)
+  let timeStamp: number = $state(0)
+
+  function clamp(value: number, absMax: number): number {
+    if (value < -absMax) return -absMax
+    if (value > absMax) return absMax
+    return value
+  }
+
+  function scale(value: number, originAbsMax: number, targetAbsMax: number): number {
+    return (value / originAbsMax) * targetAbsMax
+  }
+
+  function normalizeAngle(value: number): number {
+    while (value < 0) {
+      value += 360
+    }
+    return value % 360
+  }
+
+  function normalizeNumber(value: number): string {
+    return value.toFixed(0).padStart(3, '0')
+  }
+
+  let angleX: number = $derived(beta)
+  let angleY: number = $derived(gamma)
+  let angleZ: number = $derived(normalizeAngle(-alpha))
+
+  let motionAngle: number = $derived(normalizeAngle((Math.atan2(angleX, angleY) * 180) / Math.PI))
+  let motionSpeed: number = $derived(
+    clamp(
+      scale(Math.sqrt(angleX * angleX + angleY * angleY), MAX_TILT_ANGLE, ABS_MAX_SPEED),
+      ABS_MAX_SPEED
+    )
+  )
+  let heading: number = $derived(isHeadingLocked ? lockedHeading : angleZ)
+
+  let motionAngleNormalized: string = $derived(normalizeNumber(motionAngle))
+  let motionSpeedNormalized: string = $derived(normalizeNumber(motionSpeed))
+  let headingNormalized: string = $derived(normalizeNumber(heading))
+
+  let packetFormat: string = $derived(
+    `A${motionAngleNormalized}S${motionSpeedNormalized}H${headingNormalized}E`
+  )
+
+  function handleOrientation(e: DeviceOrientationEvent): void {
     if (e.alpha != null) alpha = e.alpha
     if (e.beta != null) beta = e.beta
     if (e.gamma != null) gamma = e.gamma
     if (e.timeStamp != null) timeStamp = e.timeStamp
-    console.log(e.alpha, e.beta, e.gamma, e.timeStamp)
   }
 </script>
 
-<div class="w-full p-4">
-  <h1 class="mb-6 text-center text-2xl">Welcome to Soccer BT Remote</h1>
-  <button
-    class="w-full rounded-2xl bg-blue-500 p-6 text-2xl"
-    onclick={() => {
-      requestListenToOrientation(handleOrientation)
-    }}>CLICK ME TO START SENSOR CAPTURE</button
-  >
+<div class="flex w-full flex-col gap-2 p-4">
+  <h1 class="text-center text-2xl">Welcome to Soccer BT Remote</h1>
 
-  <div class="mt-6">
-    <div class="text-2xl">alpha: {alpha}</div>
-    <div class="text-2xl">beta: {beta}</div>
-    <div class="text-2xl">gamma: {gamma}</div>
-    <div class="text-2xl">timeStamp: {timeStamp}</div>
+  <div class="flex justify-between px-20">
+    <button
+      class="rounded-2xl bg-blue-500 px-6 py-2 text-2xl"
+      onclick={() => {
+        requestListenToOrientation(handleOrientation)
+      }}>Click me to start sensor capture</button
+    >
+
+    <label class="flex items-center gap-2">
+      <input
+        type="checkbox"
+        bind:checked={isHeadingLocked}
+        onchange={() => (lockedHeading = angleZ)}
+      />
+      Lock Heading
+    </label>
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <div class="flex gap-6">
+      <div class="text-xs">alpha: {alpha.toFixed(ANGLE_FIX)}</div>
+      <div class="text-xs">beta: {beta.toFixed(ANGLE_FIX)}</div>
+      <div class="text-xs">gamma: {gamma.toFixed(ANGLE_FIX)}</div>
+      <div class="text-xs">timeStamp: {Math.round(timeStamp)}</div>
+    </div>
+    <div class="flex gap-6">
+      <div class="text-md">angleX: {angleX.toFixed(ANGLE_FIX)}</div>
+      <div class="text-md">angleY: {angleY.toFixed(ANGLE_FIX)}</div>
+    </div>
+    <div class="flex gap-6">
+      <div class="text-2xl">motionAngle: {motionAngleNormalized}</div>
+      <div class="text-2xl">motionSpeed: {motionSpeedNormalized}</div>
+      <div class="text-2xl">heading: {headingNormalized}</div>
+    </div>
+    <div class="text-md">packetFormat: {packetFormat}</div>
   </div>
 </div>
