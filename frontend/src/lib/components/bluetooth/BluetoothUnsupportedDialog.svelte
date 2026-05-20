@@ -17,11 +17,8 @@
       >
     {:else}
       <a class="link link-info" href="https://www.google.com/chrome/" target="_blank">Chrome</a>,
-      <a class="link link-info" href="https://www.microsoft.com/edge" target="_blank">Edge</a>,
-      <a class="link link-info" href="https://www.opera.com/" target="_blank">Opera</a>, or
-      <a class="link link-info" href="https://www.samsung.com/internet/" target="_blank"
-        >Samsung Internet</a
-      >
+      <a class="link link-info" href="https://www.microsoft.com/edge" target="_blank">Edge</a>, or
+      <a class="link link-info" href="https://www.opera.com/" target="_blank">Opera</a>
     {/if}
     to continue.
   </p>
