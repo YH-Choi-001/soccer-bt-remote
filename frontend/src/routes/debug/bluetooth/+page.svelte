@@ -10,24 +10,18 @@
   // ── Nordic UART Service (NUS) UUIDs ───────────────────────────────────────
   // These are the standard BLE UART profile UUIDs. Change if your device uses
   // a different custom UART service.
-  const SERVICE_UUID_16 = 'fff0'
-  const SERVICE_UUID = BluetoothFacade.uuid16To128(SERVICE_UUID_16)
-
-  const scanOptions: RequestDeviceOptions = {
-    filters: [
-      { namePrefix: 'JM9' },
-      { namePrefix: 'XRCU' },
-      { namePrefix: 'CSW' },
-      { namePrefix: 'CSWCSS' },
-      { namePrefix: 'REC' },
-      { namePrefix: 'CSWREC' },
-    ],
-    optionalServices: [SERVICE_UUID],
-  }
 
   // ── Types ─────────────────────────────────────────────────────────────────
   type Direction = 'rx' | 'tx' | 'system' | 'error'
   type LogEntry = { id: number; time: string; dir: Direction; text: string }
+
+  let serviceUUID16 = $state('fff0')
+  let rxUUID16 = $state('fff2')
+  let txUUID16 = $state('fff1')
+
+  let serviceUUID = $derived(BluetoothFacade.uuid16To128(serviceUUID16))
+  let rxUUID = $derived(BluetoothFacade.uuid16To128(rxUUID16))
+  let txUUID = $derived(BluetoothFacade.uuid16To128(txUUID16))
 
   let device = $state<BluetoothFacade | null>(null)
   let isConnecting = $derived(device?.isConnecting ?? false)
@@ -37,6 +31,18 @@
 
   let logCounter = 0
   let terminalEl: HTMLDivElement
+
+  let scanOptions: RequestDeviceOptions = $derived({
+    filters: [
+      { namePrefix: 'JM9' },
+      { namePrefix: 'XRCU' },
+      { namePrefix: 'CSW' },
+      { namePrefix: 'CSWCSS' },
+      { namePrefix: 'REC' },
+      { namePrefix: 'CSWREC' },
+    ],
+    optionalServices: [serviceUUID],
+  })
 
   // ── DaisyUI badge class for connection status ──────────────────────────────
   const statusBadgeClass = $derived(
@@ -100,7 +106,7 @@
   async function startScan() {
     try {
       addLog('system', 'Scanning for devices…')
-      device = await BluetoothFacade.scan(SERVICE_UUID, scanOptions)
+      device = await BluetoothFacade.scan(serviceUUID, scanOptions)
       device.onReceived = onReceive
       device.onDisconnected = onDisconnect
       addLog('system', `Device selected: ${device.getDevice()?.name}`)
@@ -113,7 +119,7 @@
   async function connect() {
     try {
       addLog('system', 'Connecting to GATT server…')
-      await device?.connect()
+      await device?.connect(rxUUID, txUUID)
       addLog('system', 'Ready — notifications active.')
     } catch (e) {
       addLog('error', `Connection failed: ${e}`)
@@ -190,26 +196,67 @@
   </header>
 
   <!-- ── Controls ───────────────────────────────────────────────────────── -->
-  <div class="flex flex-wrap gap-2">
-    {#if !device?.getDevice() || !isConnected}
-      <button class="btn btn-sm btn-primary" onclick={startScan} disabled={isConnecting}>
-        {#if isConnecting}
-          <span class="loading loading-xs loading-spinner"></span> Connecting…
-        {:else}
-          🔍 Scan &amp; Connect
-        {/if}
-      </button>
-    {:else}
-      <button
-        class="btn btn-outline btn-sm btn-success"
-        onclick={connect}
-        disabled={isConnecting || isConnected}
-      >
-        ⚡ Reconnect
-      </button>
-      <button class="btn btn-outline btn-sm btn-error" onclick={disconnect}> ✕ Disconnect </button>
-    {/if}
-    <button class="btn btn-ghost btn-sm" onclick={() => (log = [])}> 🗑 Clear </button>
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-wrap gap-2">
+      {#if !device?.getDevice() || !isConnected}
+        <button class="btn btn-sm btn-primary" onclick={startScan} disabled={isConnecting}>
+          {#if isConnecting}
+            <span class="loading loading-xs loading-spinner"></span> Connecting…
+          {:else}
+            🔍 Scan &amp; Connect
+          {/if}
+        </button>
+      {:else}
+        <button
+          class="btn btn-outline btn-sm btn-success"
+          onclick={connect}
+          disabled={isConnecting || isConnected}
+        >
+          ⚡ Reconnect
+        </button>
+        <button class="btn btn-outline btn-sm btn-error" onclick={disconnect}>
+          ✕ Disconnect
+        </button>
+      {/if}
+      <button class="btn btn-ghost btn-sm" onclick={() => (log = [])}> 🗑 Clear </button>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 md:gap-6">
+      <!-- service UUID -->
+      <div class="flex items-center gap-1 md:gap-2">
+        <label class="label-text" for="service-uuid">Service</label>
+        <input
+          id="service-uuid"
+          type="text"
+          class="input-bordered input w-16"
+          bind:value={serviceUUID16}
+          disabled={isConnecting || isConnected}
+        />
+      </div>
+
+      <!-- rx UUID -->
+      <div class="flex items-center gap-1 md:gap-2">
+        <label class="label-text" for="rx-uuid">RX</label>
+        <input
+          id="rx-uuid"
+          type="text"
+          class="input-bordered input w-16"
+          bind:value={rxUUID16}
+          disabled={isConnecting || isConnected}
+        />
+      </div>
+
+      <!-- tx UUID -->
+      <div class="flex items-center gap-1 md:gap-2">
+        <label class="label-text" for="tx-uuid">TX</label>
+        <input
+          id="tx-uuid"
+          type="text"
+          class="input-bordered input w-16"
+          bind:value={txUUID16}
+          disabled={isConnecting || isConnected}
+        />
+      </div>
+    </div>
   </div>
 
   <!-- ── Terminal ────────────────────────────────────────────────────────── -->

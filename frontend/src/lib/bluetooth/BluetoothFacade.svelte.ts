@@ -1,8 +1,5 @@
 // ── Bluetooth facade class (singleton) ─────────────────────────────────
 export class BluetoothFacade {
-  readonly NUS_RX_CHAR = BluetoothFacade.uuid16To128('fff2')
-  readonly NUS_TX_CHAR = BluetoothFacade.uuid16To128('fff1')
-
   private readonly device: BluetoothDevice
   private readonly serviceUUID: BluetoothServiceUUID
   private server: BluetoothRemoteGATTServer | null = $state(null)
@@ -21,7 +18,7 @@ export class BluetoothFacade {
     this.serviceUUID = serviceUUID
   }
 
-  async connect() {
+  async connect(rxUUID: BluetoothServiceUUID, txUUID: BluetoothServiceUUID) {
     if (!this.device?.gatt) return
     if (this.server) return
     this.isConnecting = true
@@ -29,8 +26,8 @@ export class BluetoothFacade {
       this.server = await this.device.gatt.connect()
 
       const service = await this.server.getPrimaryService(this.serviceUUID)
-      this.rxChar = await service.getCharacteristic(this.NUS_RX_CHAR)
-      this.txChar = await service.getCharacteristic(this.NUS_TX_CHAR)
+      this.rxChar = await service.getCharacteristic(rxUUID)
+      this.txChar = await service.getCharacteristic(txUUID)
 
       await this.txChar.startNotifications()
       this.txChar.addEventListener('characteristicvaluechanged', this.onReceivedEvent)
