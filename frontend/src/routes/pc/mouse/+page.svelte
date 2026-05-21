@@ -1,70 +1,20 @@
 <!--
-PC demo page with WASD control.
+PC demo page with mouse control.
 -->
 <script lang="ts">
   import Serializer from '$lib/components/serializer/Serializer.svelte'
   import BluetoothConnectPanel from '$lib/components/bluetooth/BluetoothConnectPanel.svelte'
   import { addAlert } from '$lib/alerts/alertStore.svelte'
   import AlertStack from '$lib/components/ui/AlertStack.svelte'
-  import { onMount } from 'svelte'
+  import Joystick from '$lib/components/ui/Joystick.svelte'
 
   const ABS_MAX_SPEED: number = 255
 
-  let w: boolean = $state(false)
-  let a: boolean = $state(false)
-  let s: boolean = $state(false)
-  let d: boolean = $state(false)
+  let joystickX = $state(0)
+  let joystickY = $state(0)
 
-  let arrowUp: boolean = $state(false)
-  let arrowDown: boolean = $state(false)
-  let arrowLeft: boolean = $state(false)
-  let arrowRight: boolean = $state(false)
-
-  let toUp = $derived(w || arrowUp)
-  let toDown = $derived(s || arrowDown)
-  let toLeft = $derived(a || arrowLeft)
-  let toRight = $derived(d || arrowRight)
-
-  const setKeyTo = (key: string, value: boolean) => {
-    switch (key) {
-      case 'w':
-        w = value
-        break
-      case 'a':
-        a = value
-        break
-      case 's':
-        s = value
-        break
-      case 'd':
-        d = value
-        break
-      case 'ArrowUp':
-        arrowUp = value
-        break
-      case 'ArrowDown':
-        arrowDown = value
-        break
-      case 'ArrowLeft':
-        arrowLeft = value
-        break
-      case 'ArrowRight':
-        arrowRight = value
-        break
-    }
-  }
-
-  onMount(() => {
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      setKeyTo(e.key, true)
-    })
-    document.addEventListener('keyup', (e: KeyboardEvent) => {
-      setKeyTo(e.key, false)
-    })
-  })
-
-  let speedX = $derived(toLeft && toRight ? 0 : toRight ? 1 : toLeft ? -1 : 0)
-  let speedY = $derived(toUp && toDown ? 0 : toUp ? 1 : toDown ? -1 : 0)
+  let speedX = $derived(joystickX)
+  let speedY = $derived(-joystickY)
 
   function clamp(value: number, absMax: number): number {
     if (value < -absMax) return -absMax
@@ -123,6 +73,10 @@ PC demo page with WASD control.
     }}
     bind:this={bluetooth}
   />
+
+  <div class="align-center flex justify-center">
+    <Joystick bind:x={joystickX} bind:y={joystickY} />
+  </div>
 
   <div class="flex flex-col gap-3">
     <Serializer
