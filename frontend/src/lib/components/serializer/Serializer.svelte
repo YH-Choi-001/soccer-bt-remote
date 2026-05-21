@@ -24,7 +24,7 @@
   const motionSpeedNormalized: string = $derived(normalizeNumber(motionSpeed))
   const headingNormalized: string = $derived(normalizeNumber(normalizeAngle(headingUsed)))
   const rawFormatted: string = $derived(
-    `A${motionAngleNormalized}S${motionSpeedNormalized}H${headingNormalized}E`
+    `A${motionAngleNormalized}S${motionSpeedNormalized}H${headingNormalized}E\n`
   )
   $effect(() => {
     if (updateFormattedString) {
