@@ -112,4 +112,15 @@
   })
 </script>
 
-<canvas bind:this={canvasElement} width={canvasDiameter} height={canvasDiameter}></canvas>
+<canvas
+  class="noscroll-canvas"
+  bind:this={canvasElement}
+  width={canvasDiameter}
+  height={canvasDiameter}
+></canvas>
+
+<style>
+  .noscroll-canvas {
+    touch-action: none;
+  }
+</style>
