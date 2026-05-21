@@ -6,6 +6,7 @@
 <script lang="ts">
   import { BluetoothFacade } from '$lib/bluetooth/BluetoothFacade.svelte'
   import BluetoothUnsupportedDialog from '$lib/components/bluetooth/BluetoothUnsupportedDialog.svelte'
+  import InputUUID from '$lib/components/ui/InputUUID.svelte'
 
   // ── Nordic UART Service (NUS) UUIDs ───────────────────────────────────────
   // These are the standard BLE UART profile UUIDs. Change if your device uses
@@ -15,9 +16,9 @@
   type Direction = 'rx' | 'tx' | 'system' | 'error'
   type LogEntry = { id: number; time: string; dir: Direction; text: string }
 
-  let serviceUUID16 = $state('fff0')
-  let rxUUID16 = $state('fff2')
-  let txUUID16 = $state('fff1')
+  let serviceUUID16 = $state('FFF0')
+  let rxUUID16 = $state('FFF2')
+  let txUUID16 = $state('FFF1')
 
   let serviceUUID = $derived(BluetoothFacade.uuid16To128(serviceUUID16))
   let rxUUID = $derived(BluetoothFacade.uuid16To128(rxUUID16))
@@ -207,13 +208,6 @@
           {/if}
         </button>
       {:else}
-        <button
-          class="btn btn-outline btn-sm btn-success"
-          onclick={connect}
-          disabled={isConnecting || isConnected}
-        >
-          ⚡ Reconnect
-        </button>
         <button class="btn btn-outline btn-sm btn-error" onclick={disconnect}>
           ✕ Disconnect
         </button>
@@ -222,40 +216,17 @@
     </div>
     <div class="flex flex-wrap items-center gap-3 md:gap-6">
       <!-- service UUID -->
-      <div class="flex items-center gap-1 md:gap-2">
-        <label class="label-text" for="service-uuid">Service</label>
-        <input
-          id="service-uuid"
-          type="text"
-          class="input-bordered input w-16"
-          bind:value={serviceUUID16}
-          disabled={isConnecting || isConnected}
-        />
-      </div>
+      <InputUUID
+        labelText="Service"
+        bind:uuid16={serviceUUID16}
+        disabled={isConnecting || isConnected}
+      />
 
       <!-- rx UUID -->
-      <div class="flex items-center gap-1 md:gap-2">
-        <label class="label-text" for="rx-uuid">RX</label>
-        <input
-          id="rx-uuid"
-          type="text"
-          class="input-bordered input w-16"
-          bind:value={rxUUID16}
-          disabled={isConnecting || isConnected}
-        />
-      </div>
+      <InputUUID labelText="RX" bind:uuid16={rxUUID16} disabled={isConnecting || isConnected} />
 
       <!-- tx UUID -->
-      <div class="flex items-center gap-1 md:gap-2">
-        <label class="label-text" for="tx-uuid">TX</label>
-        <input
-          id="tx-uuid"
-          type="text"
-          class="input-bordered input w-16"
-          bind:value={txUUID16}
-          disabled={isConnecting || isConnected}
-        />
-      </div>
+      <InputUUID labelText="TX" bind:uuid16={txUUID16} disabled={isConnecting || isConnected} />
     </div>
   </div>
 
