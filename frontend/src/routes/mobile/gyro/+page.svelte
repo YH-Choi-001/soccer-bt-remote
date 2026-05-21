@@ -4,13 +4,13 @@ Mobile demo page.
 
 <script lang="ts">
   import { requestListenToOrientation } from '$lib/orientation/orientation'
+  import Serializer from '$lib/components/serializer/Serializer.svelte'
 
   const MAX_TILT_ANGLE: number = 45
   const ABS_MAX_SPEED: number = 255
   const ANGLE_FIX: number = 2
 
   let isHeadingLocked: boolean = $state(false)
-  let lockedHeading: number = $state(0)
 
   let alpha: number = $state(0)
   let beta: number = $state(0)
@@ -27,37 +27,20 @@ Mobile demo page.
     return (value / originAbsMax) * targetAbsMax
   }
 
-  function normalizeAngle(value: number): number {
-    while (value < 0) {
-      value += 360
-    }
-    return value % 360
-  }
+  const angleX: number = $derived(beta)
+  const angleY: number = $derived(gamma)
+  const angleZ: number = $derived(-alpha)
 
-  function normalizeNumber(value: number): string {
-    return value.toFixed(0).padStart(3, '0')
-  }
-
-  let angleX: number = $derived(beta)
-  let angleY: number = $derived(gamma)
-  let angleZ: number = $derived(normalizeAngle(-alpha))
-
-  let motionAngle: number = $derived(normalizeAngle((Math.atan2(angleX, angleY) * 180) / Math.PI))
-  let motionSpeed: number = $derived(
+  const motionAngle: number = $derived((Math.atan2(angleX, angleY) * 180) / Math.PI)
+  const motionSpeed: number = $derived(
     clamp(
       scale(Math.sqrt(angleX * angleX + angleY * angleY), MAX_TILT_ANGLE, ABS_MAX_SPEED),
       ABS_MAX_SPEED
     )
   )
-  let heading: number = $derived(isHeadingLocked ? lockedHeading : angleZ)
+  const heading: number = $derived(angleZ)
 
-  let motionAngleNormalized: string = $derived(normalizeNumber(motionAngle))
-  let motionSpeedNormalized: string = $derived(normalizeNumber(motionSpeed))
-  let headingNormalized: string = $derived(normalizeNumber(heading))
-
-  let packetFormat: string = $derived(
-    `A${motionAngleNormalized}S${motionSpeedNormalized}H${headingNormalized}E`
-  )
+  let formattedString: string = $state('')
 
   function handleOrientation(e: DeviceOrientationEvent): void {
     if (e.alpha != null) alpha = e.alpha
@@ -83,28 +66,30 @@ Mobile demo page.
         type="checkbox"
         class="checkbox checkbox-lg checkbox-primary"
         bind:checked={isHeadingLocked}
-        onchange={() => (lockedHeading = angleZ)}
       />
       Lock Heading
     </label>
   </div>
 
   <div class="flex flex-col gap-3">
-    <div class="flex flex-col gap-2 sm:flex-row sm:gap-6">
+    <div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-4 sm:gap-6">
       <div class="text-xs">alpha: {alpha.toFixed(ANGLE_FIX)}</div>
       <div class="text-xs">beta: {beta.toFixed(ANGLE_FIX)}</div>
       <div class="text-xs">gamma: {gamma.toFixed(ANGLE_FIX)}</div>
       <div class="text-xs">timeStamp: {Math.round(timeStamp)}</div>
     </div>
-    <div class="flex flex-col gap-2 sm:flex-row sm:gap-6">
+    <div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-3 sm:gap-6">
       <div class="text-md">angleX: {angleX.toFixed(ANGLE_FIX)}</div>
       <div class="text-md">angleY: {angleY.toFixed(ANGLE_FIX)}</div>
+      <div class="text-md">angleZ: {angleZ.toFixed(ANGLE_FIX)}</div>
     </div>
-    <div class="flex flex-col gap-2 sm:flex-row sm:gap-6">
-      <div class="text-2xl">motionAngle: {motionAngleNormalized}</div>
-      <div class="text-2xl">motionSpeed: {motionSpeedNormalized}</div>
-      <div class="text-2xl">heading: {headingNormalized}</div>
-    </div>
-    <div class="text-md">packetFormat: {packetFormat}</div>
+    <Serializer
+      {motionAngle}
+      {motionSpeed}
+      {heading}
+      {isHeadingLocked}
+      updateFormattedString={(s) => (formattedString = s)}
+    />
+    <div class="text-md">packetFormat: {formattedString}</div>
   </div>
 </div>
