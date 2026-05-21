@@ -1,5 +1,4 @@
 <script lang="ts">
-  //
   let {
     labelText,
     uuid16 = $bindable(),
@@ -18,6 +17,7 @@
       type="text"
       class="w-12"
       bind:value={uuid16}
+      oninput={(e) => (uuid16 = (e.target as HTMLInputElement).value.toUpperCase())}
       required
       placeholder="UUID"
       pattern="^[A-Fa-f0-9]&lcub;4&rcub;$"

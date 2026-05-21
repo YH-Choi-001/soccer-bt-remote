@@ -5,6 +5,9 @@ Mobile demo page.
 <script lang="ts">
   import { requestListenToOrientation } from '$lib/orientation/orientation'
   import Serializer from '$lib/components/serializer/Serializer.svelte'
+  import BluetoothConnectPanel from '$lib/components/bluetooth/BluetoothConnectPanel.svelte'
+  import { addAlert } from '$lib/alerts/alertStore.svelte'
+  import AlertStack from '$lib/components/ui/AlertStack.svelte'
 
   const MAX_TILT_ANGLE: number = 45
   const ABS_MAX_SPEED: number = 255
@@ -48,10 +51,45 @@ Mobile demo page.
     if (e.gamma != null) gamma = e.gamma
     if (e.timeStamp != null) timeStamp = e.timeStamp
   }
+
+  const SEND_INTERVAL_MS: number = 100
+
+  let serviceUUID16: string = $state('FFF0')
+  let rxUUID16: string = $state('FFF2')
+  let txUUID16: string = $state('FFF1')
+
+  let bluetooth: BluetoothConnectPanel | undefined = $state(undefined)
+
+  let interval: ReturnType<typeof setInterval> | undefined = $state(undefined)
+
+  const sendPacket = () => {
+    bluetooth?.send(formattedString)
+  }
 </script>
+
+<AlertStack />
 
 <div class="flex w-full flex-col gap-4 p-4">
   <h1 class="text-center text-2xl">Welcome to Soccer BT Remote</h1>
+
+  <BluetoothConnectPanel
+    bind:serviceUUID16
+    bind:rxUUID16
+    bind:txUUID16
+    onConnected={() => {
+      if (interval) clearInterval(interval)
+      interval = setInterval(sendPacket, SEND_INTERVAL_MS)
+    }}
+    onDisconnected={() => {
+      if (interval) clearInterval(interval)
+      interval = undefined
+      addAlert('Disconnected', 'Disconnected from bluetooth device', 'info')
+    }}
+    onError={(e) => {
+      addAlert(e.name, e.message, 'error')
+    }}
+    bind:this={bluetooth}
+  />
 
   <div class="flex flex-col justify-between gap-2 sm:flex-row sm:gap-0 sm:px-10">
     <button

@@ -16,9 +16,9 @@
   type Direction = 'rx' | 'tx' | 'system' | 'error'
   type LogEntry = { id: number; time: string; dir: Direction; text: string }
 
-  let serviceUUID16 = $state('fff0')
-  let rxUUID16 = $state('fff2')
-  let txUUID16 = $state('fff1')
+  let serviceUUID16 = $state('FFF0')
+  let rxUUID16 = $state('FFF2')
+  let txUUID16 = $state('FFF1')
 
   let serviceUUID = $derived(BluetoothFacade.uuid16To128(serviceUUID16))
   let rxUUID = $derived(BluetoothFacade.uuid16To128(rxUUID16))
