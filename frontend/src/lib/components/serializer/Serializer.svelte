@@ -44,8 +44,8 @@
   }
 </script>
 
-<div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-3 sm:gap-6">
-  <div class="text-2xl">motionAngle: {motionAngleNormalized}</div>
-  <div class="text-2xl">motionSpeed: {motionSpeedNormalized}</div>
-  <div class="text-2xl">heading: {headingNormalized}</div>
+<div class="grid grid-cols-1 gap-1 sm:grid-flow-col sm:grid-cols-3 sm:gap-2 sm:gap-6">
+  <div class="text-xs sm:text-lg md:text-2xl">motionAngle: {motionAngleNormalized}</div>
+  <div class="text-xs sm:text-lg md:text-2xl">motionSpeed: {motionSpeedNormalized}</div>
+  <div class="text-xs sm:text-lg md:text-2xl">heading: {headingNormalized}</div>
 </div>
