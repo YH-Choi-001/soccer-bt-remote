@@ -67,20 +67,21 @@ Mobile demo page.
   }
 </script>
 
-<div class="flex w-full flex-col gap-2 p-4">
+<div class="flex w-full flex-col gap-4 p-4">
   <h1 class="text-center text-2xl">Welcome to Soccer BT Remote</h1>
 
-  <div class="flex justify-between px-20">
+  <div class="flex flex-col justify-between gap-2 sm:flex-row sm:gap-0 sm:px-10">
     <button
-      class="rounded-2xl bg-blue-500 px-6 py-2 text-2xl"
+      class="btn btn-primary"
       onclick={() => {
         requestListenToOrientation(handleOrientation)
-      }}>Click me to start sensor capture</button
+      }}>Start Sensor Capture</button
     >
 
     <label class="flex items-center gap-2">
       <input
         type="checkbox"
+        class="checkbox checkbox-lg checkbox-primary"
         bind:checked={isHeadingLocked}
         onchange={() => (lockedHeading = angleZ)}
       />
@@ -89,17 +90,17 @@ Mobile demo page.
   </div>
 
   <div class="flex flex-col gap-3">
-    <div class="flex gap-6">
+    <div class="flex flex-col gap-2 sm:flex-row sm:gap-6">
       <div class="text-xs">alpha: {alpha.toFixed(ANGLE_FIX)}</div>
       <div class="text-xs">beta: {beta.toFixed(ANGLE_FIX)}</div>
       <div class="text-xs">gamma: {gamma.toFixed(ANGLE_FIX)}</div>
       <div class="text-xs">timeStamp: {Math.round(timeStamp)}</div>
     </div>
-    <div class="flex gap-6">
+    <div class="flex flex-col gap-2 sm:flex-row sm:gap-6">
       <div class="text-md">angleX: {angleX.toFixed(ANGLE_FIX)}</div>
       <div class="text-md">angleY: {angleY.toFixed(ANGLE_FIX)}</div>
     </div>
-    <div class="flex gap-6">
+    <div class="flex flex-col gap-2 sm:flex-row sm:gap-6">
       <div class="text-2xl">motionAngle: {motionAngleNormalized}</div>
       <div class="text-2xl">motionSpeed: {motionSpeedNormalized}</div>
       <div class="text-2xl">heading: {headingNormalized}</div>
