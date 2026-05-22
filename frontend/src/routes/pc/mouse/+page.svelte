@@ -5,7 +5,6 @@ PC demo page with mouse control.
   import Serializer from '$lib/components/serializer/Serializer.svelte'
   import BluetoothConnectPanel from '$lib/components/bluetooth/BluetoothConnectPanel.svelte'
   import { addAlert } from '$lib/alerts/alertStore.svelte'
-  import AlertStack from '$lib/components/ui/AlertStack.svelte'
   import Joystick from '$lib/components/ui/Joystick.svelte'
 
   const ABS_MAX_SPEED: number = 255
@@ -49,8 +48,6 @@ PC demo page with mouse control.
     bluetooth?.send(formattedString)
   }
 </script>
-
-<AlertStack />
 
 <div class="flex w-full flex-col gap-4 p-4">
   <h1 class="text-center text-2xl">Welcome to Soccer BT Remote</h1>
