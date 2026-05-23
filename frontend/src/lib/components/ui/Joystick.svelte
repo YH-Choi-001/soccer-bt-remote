@@ -1,61 +1,33 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { on } from 'svelte/events'
 
   let {
     x = $bindable(0),
     y = $bindable(0),
-    panelRadius = 100,
-    stickRadius = 30,
-    panelColor = '#808080',
-    outerPanelColor = '#404040',
-    stickColor = '#E0E000',
+    panelClass = 'size-64 m-12 bg-gray-500 border-12 border-gray-600',
+    stickClass = 'size-24 bg-radial from-yellow-300 to-yellow-500 border-4 border-yellow-500',
   }: {
     x: number
     y: number
-    panelRadius?: number
-    stickRadius?: number
-    panelColor?: string
-    outerPanelColor?: string
-    stickColor?: string
+    panelClass?: string
+    stickClass?: string
   } = $props()
 
-  const canvasDiameter = $derived((panelRadius + stickRadius) * 2)
-
-  let canvasElement: HTMLCanvasElement
-
-  const panelCenterX = $derived(canvasDiameter / 2)
-  const panelCenterY = $derived(canvasDiameter / 2)
-
-  function fillCircle(x: number, y: number, r: number, color: string) {
-    const context = canvasElement.getContext('2d')
-    if (!context) return
-    context.beginPath()
-    context.arc(x, y, r, 0, Math.PI * 2)
-    context.fillStyle = color
-    context.fill()
-  }
-
-  function updateJoystickGraphics() {
-    fillCircle(panelCenterX, panelCenterY, panelRadius + stickRadius, outerPanelColor)
-    fillCircle(panelCenterX, panelCenterY, panelRadius, panelColor)
-    fillCircle(
-      panelCenterX + x * panelRadius,
-      panelCenterY + y * panelRadius,
-      stickRadius,
-      stickColor
-    )
-  }
-
-  $effect(() => {
-    updateJoystickGraphics()
-  })
+  let wrapperElement: HTMLElement
+  let panelElement: HTMLElement
+  let stickElement: HTMLElement
 
   let isJoystickPressed: boolean = $state(false)
 
-  const updateJoystickPosition = (rawX: number, rawY: number) => {
-    const rect = canvasElement.getBoundingClientRect()
-    let relX = (rawX - rect.left - panelCenterX) / panelRadius
-    let relY = (rawY - rect.top - panelCenterY) / panelRadius
+  const updateJoystickRelativePosition = (rawX: number, rawY: number) => {
+    const panelRect = panelElement.getBoundingClientRect()
+    const panelMidX = (panelRect.left + panelRect.right) / 2
+    const panelMidY = (panelRect.top + panelRect.bottom) / 2
+    const panelHalfWidth = panelRect.width / 2
+    const panelHalfHeight = panelRect.height / 2
+    let relX = (rawX - panelMidX) / panelHalfWidth
+    let relY = (rawY - panelMidY) / panelHalfHeight
     const mag = Math.sqrt(relX * relX + relY * relY)
     if (mag > 1) {
       relX /= mag
@@ -63,6 +35,34 @@
     }
     x = relX
     y = relY
+  }
+
+  const updateJoystickAbsoluteGraphicalPosition = (rawX: number, rawY: number) => {
+    const wrapperRect = wrapperElement.getBoundingClientRect()
+    const stickRect = stickElement.getBoundingClientRect()
+    const localLeft = rawX - wrapperRect.left - stickRect.width / 2
+    const localTop = rawY - wrapperRect.top - stickRect.height / 2
+    stickElement.style.left = `${localLeft}px`
+    stickElement.style.top = `${localTop}px`
+  }
+
+  const updateJoystickRelativeGraphicalPosition = (relX: number, relY: number) => {
+    const panelRect = panelElement.getBoundingClientRect()
+    const panelMidX = (panelRect.left + panelRect.right) / 2
+    const panelMidY = (panelRect.top + panelRect.bottom) / 2
+    const panelHalfWidth = panelRect.width / 2
+    const panelHalfHeight = panelRect.height / 2
+    const rawX = relX * panelHalfWidth + panelMidX
+    const rawY = relY * panelHalfHeight + panelMidY
+    updateJoystickAbsoluteGraphicalPosition(rawX, rawY)
+  }
+
+  $effect(() => {
+    updateJoystickRelativeGraphicalPosition(x, y)
+  })
+
+  const updateJoystickPosition = (rawX: number, rawY: number) => {
+    updateJoystickRelativePosition(rawX, rawY)
   }
 
   const mousePressedCallback = (e: MouseEvent) => {
@@ -101,26 +101,27 @@
   }
 
   onMount(() => {
-    canvasElement.addEventListener('mousedown', mousePressedCallback)
-    document.addEventListener('mousemove', mouseMovedCallback)
-    document.addEventListener('mouseup', joystickReleasedCallback)
+    on(panelElement, 'mousedown', mousePressedCallback)
+    on(stickElement, 'mousedown', mousePressedCallback)
+    on(document, 'mousemove', mouseMovedCallback)
+    on(document, 'mouseup', joystickReleasedCallback)
 
-    canvasElement.addEventListener('touchstart', fingerPressedCallback)
-    document.addEventListener('touchmove', fingerMovedCallback)
-    document.addEventListener('touchend', joystickReleasedCallback)
-    document.addEventListener('touchcancel', joystickReleasedCallback)
+    on(panelElement, 'touchstart', fingerPressedCallback)
+    on(stickElement, 'touchstart', fingerPressedCallback)
+    on(document, 'touchmove', fingerMovedCallback)
+    on(document, 'touchend', joystickReleasedCallback)
+    on(document, 'touchcancel', joystickReleasedCallback)
+
+    joystickReleasedCallback()
   })
 </script>
 
-<canvas
-  class="noscroll-canvas"
-  bind:this={canvasElement}
-  width={canvasDiameter}
-  height={canvasDiameter}
-></canvas>
-
-<style>
-  .noscroll-canvas {
-    touch-action: none;
-  }
-</style>
+<div class="relative touch-none" bind:this={wrapperElement}>
+  <div class="z-10 rounded-full {panelClass}" bind:this={panelElement}></div>
+  <div
+    class="absolute z-20 rounded-full {isJoystickPressed
+      ? 'cursor-grabbing'
+      : 'cursor-grab'} {stickClass}"
+    bind:this={stickElement}
+  ></div>
+</div>
