@@ -7,8 +7,8 @@
     y = $bindable(0),
     listenToMouse = true,
     listenToTouch = true,
-    panelClass = 'size-64 m-12 bg-gray-500 border-12 border-gray-600',
-    stickClass = 'size-24 bg-radial from-yellow-300 to-yellow-500 border-4 border-yellow-500',
+    panelClass = 'size-48 m-9 border-9 md:size-64 md:m-12 md:border-12 bg-gray-500 border-gray-600',
+    stickClass = 'size-18 border-3 md:size-24 md:border-4 bg-radial from-yellow-300 to-yellow-500 border-yellow-500',
   }: {
     x: number
     y: number
