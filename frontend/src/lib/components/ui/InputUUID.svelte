@@ -3,15 +3,17 @@
     labelText,
     uuid16 = $bindable(),
     disabled,
+    classes = '',
   }: {
     labelText: string
     uuid16: string
     disabled: boolean
+    classes?: string
   } = $props()
 </script>
 
 <div>
-  <label class="input-small input-bordered validator input">
+  <label class="input-bordered validator input {classes}">
     {labelText}
     <input
       type="text"

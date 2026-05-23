@@ -106,8 +106,8 @@
 
 <BluetoothUnsupportedDialog />
 
-<div class="flex flex-col gap-4">
-  <div class="badge gap-2 badge-lg {statusBadgeClass}">
+<div class="flex flex-col gap-2 sm:gap-4">
+  <div class="badge gap-2 badge-sm sm:badge-md md:badge-lg {statusBadgeClass}">
     <span class="inline-block h-2 w-2 rounded-full bg-current" class:animate-pulse={isConnected}
     ></span>
     {#if isConnecting}
@@ -121,9 +121,9 @@
     {/if}
   </div>
 
-  <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
     {#if !device?.getDevice() || !isConnected}
-      <button class="btn btn-primary" onclick={startScan} disabled={isConnecting}>
+      <button class="btn btn-sm btn-primary md:btn-md" onclick={startScan} disabled={isConnecting}>
         {#if isConnecting}
           <span class="loading loading-xs loading-spinner"></span> Connecting…
         {:else}
@@ -140,13 +140,24 @@
         labelText="Service"
         bind:uuid16={serviceUUID16}
         disabled={isConnecting || isConnected}
+        classes="input-xs sm:input-sm md:input-md"
       />
 
       <!-- rx UUID -->
-      <InputUUID labelText="RX" bind:uuid16={rxUUID16} disabled={isConnecting || isConnected} />
+      <InputUUID
+        labelText="RX"
+        bind:uuid16={rxUUID16}
+        disabled={isConnecting || isConnected}
+        classes="input-xs sm:input-sm md:input-md"
+      />
 
       <!-- tx UUID -->
-      <InputUUID labelText="TX" bind:uuid16={txUUID16} disabled={isConnecting || isConnected} />
+      <InputUUID
+        labelText="TX"
+        bind:uuid16={txUUID16}
+        disabled={isConnecting || isConnected}
+        classes="input-xs sm:input-sm md:input-md"
+      />
     </div>
   </div>
 </div>

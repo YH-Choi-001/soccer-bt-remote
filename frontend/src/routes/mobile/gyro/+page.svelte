@@ -7,7 +7,6 @@ Mobile demo page.
   import Serializer from '$lib/components/serializer/Serializer.svelte'
   import BluetoothConnectPanel from '$lib/components/bluetooth/BluetoothConnectPanel.svelte'
   import { addAlert } from '$lib/alerts/alertStore.svelte'
-  import AlertStack from '$lib/components/ui/AlertStack.svelte'
 
   const MAX_TILT_ANGLE: number = 45
   const ABS_MAX_SPEED: number = 255
@@ -66,8 +65,6 @@ Mobile demo page.
     bluetooth?.send(formattedString)
   }
 </script>
-
-<AlertStack />
 
 <div class="flex w-full flex-col gap-4 p-4">
   <h1 class="text-center text-2xl">Welcome to Soccer BT Remote</h1>
