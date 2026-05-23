@@ -108,34 +108,28 @@
     joystickReleasedCallback()
   })
 
-  let removeMouseCallbacks: (() => void)[] = []
-
   $effect(() => {
     if (listenToMouse) {
-      removeMouseCallbacks = [
+      const removeMouseCallbacks: (() => void)[] = [
         on(panelElement, 'mousedown', mousePressedCallback),
         on(stickElement, 'mousedown', mousePressedCallback),
         on(document, 'mousemove', mouseMovedCallback),
         on(document, 'mouseup', joystickReleasedCallback),
       ]
-    } else {
-      removeMouseCallbacks.forEach((callback) => callback())
+      return () => removeMouseCallbacks.forEach((callback) => callback())
     }
   })
 
-  let removeTouchCallbacks: (() => void)[] = []
-
   $effect(() => {
     if (listenToTouch) {
-      removeTouchCallbacks = [
+      const removeTouchCallbacks: (() => void)[] = [
         on(panelElement, 'touchstart', fingerPressedCallback),
         on(stickElement, 'touchstart', fingerPressedCallback),
         on(document, 'touchmove', fingerMovedCallback),
         on(document, 'touchend', joystickReleasedCallback),
         on(document, 'touchcancel', joystickReleasedCallback),
       ]
-    } else {
-      removeTouchCallbacks.forEach((callback) => callback())
+      return () => removeTouchCallbacks.forEach((callback) => callback())
     }
   })
 </script>
