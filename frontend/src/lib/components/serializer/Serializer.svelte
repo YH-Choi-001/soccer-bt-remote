@@ -3,14 +3,16 @@
     motionAngle,
     motionSpeed,
     heading,
-    isHeadingLocked,
+    isHeadingLocked = false,
     updateFormattedString,
+    showValues = false,
   }: {
     motionAngle: number
     motionSpeed: number
     heading: number
     isHeadingLocked?: boolean
     updateFormattedString?: (formatted: string) => void
+    showValues?: boolean
   } = $props()
 
   let headingUsed: number = $state(0)
@@ -44,8 +46,10 @@
   }
 </script>
 
-<div class="grid grid-cols-1 gap-1 sm:grid-flow-col sm:grid-cols-3 sm:gap-2 sm:gap-6">
-  <div class="text-xs sm:text-lg md:text-2xl">motionAngle: {motionAngleNormalized}</div>
-  <div class="text-xs sm:text-lg md:text-2xl">motionSpeed: {motionSpeedNormalized}</div>
-  <div class="text-xs sm:text-lg md:text-2xl">heading: {headingNormalized}</div>
-</div>
+{#if showValues}
+  <div class="grid grid-cols-1 gap-1 sm:grid-flow-col sm:grid-cols-3 sm:gap-2 sm:gap-6">
+    <div class="text-xs sm:text-lg md:text-2xl">motionAngle: {motionAngleNormalized}</div>
+    <div class="text-xs sm:text-lg md:text-2xl">motionSpeed: {motionSpeedNormalized}</div>
+    <div class="text-xs sm:text-lg md:text-2xl">heading: {headingNormalized}</div>
+  </div>
+{/if}
