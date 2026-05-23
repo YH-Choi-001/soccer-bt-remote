@@ -1,3 +1,5 @@
+import { on } from 'svelte/events'
+
 // ── Bluetooth facade class (singleton) ─────────────────────────────────
 export class BluetoothFacade {
   private readonly device: BluetoothDevice
@@ -30,8 +32,8 @@ export class BluetoothFacade {
       this.txChar = await service.getCharacteristic(txUUID)
 
       await this.txChar.startNotifications()
-      this.txChar.addEventListener('characteristicvaluechanged', this.onReceivedEvent)
-      this.device.addEventListener('gattserverdisconnected', this.onDisconnectedEvent)
+      on(this.txChar, 'characteristicvaluechanged', this.onReceivedEvent)
+      on(this.device, 'gattserverdisconnected', this.onDisconnectedEvent)
     } catch (e) {
       this.server = null
       this.rxChar = null

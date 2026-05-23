@@ -4,10 +4,10 @@
  * @param listener The event handler to attach to the device orientation event.
  */
 
-const ORIENTATION_EVENT = 'deviceorientation'
+import { on } from 'svelte/events'
 
-function attachEventHandler(listener: (e: DeviceOrientationEvent) => void): void {
-  window.addEventListener(ORIENTATION_EVENT, listener)
+function addOrientationEventListener(listener: (e: DeviceOrientationEvent) => void): void {
+  on(window, 'deviceorientation', listener)
 }
 
 function requestListenToOrientation(listener: (e: DeviceOrientationEvent) => void): void {
@@ -18,11 +18,11 @@ function requestListenToOrientation(listener: (e: DeviceOrientationEvent) => voi
     // The API requires permission — request it
     Promise.all([DeviceOrientationEvent.requestPermission()]).then(([orientationPermission]) => {
       if (orientationPermission === 'granted') {
-        attachEventHandler(listener)
+        addOrientationEventListener(listener)
       }
     })
   } else {
-    attachEventHandler(listener)
+    addOrientationEventListener(listener)
   }
 }
 

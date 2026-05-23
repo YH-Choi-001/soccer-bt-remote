@@ -5,7 +5,6 @@ PC demo page with WASD control.
   import Serializer from '$lib/components/serializer/Serializer.svelte'
   import BluetoothConnectPanel from '$lib/components/bluetooth/BluetoothConnectPanel.svelte'
   import { addAlert } from '$lib/alerts/alertStore.svelte'
-  import { onMount } from 'svelte'
 
   const ABS_MAX_SPEED: number = 255
 
@@ -53,15 +52,6 @@ PC demo page with WASD control.
     }
   }
 
-  onMount(() => {
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      setKeyTo(e.key, true)
-    })
-    document.addEventListener('keyup', (e: KeyboardEvent) => {
-      setKeyTo(e.key, false)
-    })
-  })
-
   let speedX = $derived(toLeft && toRight ? 0 : toRight ? 1 : toLeft ? -1 : 0)
   let speedY = $derived(toUp && toDown ? 0 : toUp ? 1 : toDown ? -1 : 0)
 
@@ -98,6 +88,11 @@ PC demo page with WASD control.
     bluetooth?.send(formattedString)
   }
 </script>
+
+<svelte:document
+  onkeydown={(e: KeyboardEvent) => setKeyTo(e.key, true)}
+  onkeyup={(e: KeyboardEvent) => setKeyTo(e.key, false)}
+/>
 
 <div class="flex w-full flex-col gap-4 p-4">
   <h1 class="text-center text-2xl">Welcome to Soccer BT Remote</h1>
