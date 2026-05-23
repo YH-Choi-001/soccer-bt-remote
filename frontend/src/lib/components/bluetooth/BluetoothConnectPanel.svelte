@@ -145,7 +145,9 @@
         {/if}
       </button>
     {:else}
-      <button class="btn btn-outline btn-sm btn-error" onclick={disconnect}> ✕ Disconnect </button>
+      <button class="btn btn-outline btn-sm btn-error md:btn-md" onclick={disconnect}>
+        ✕ Disconnect
+      </button>
     {/if}
 
     <div class="flex flex-wrap items-center gap-3 md:gap-6">
