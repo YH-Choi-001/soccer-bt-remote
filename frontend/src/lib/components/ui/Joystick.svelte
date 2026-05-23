@@ -5,11 +5,15 @@
   let {
     x = $bindable(0),
     y = $bindable(0),
+    listenToMouse = true,
+    listenToTouch = true,
     panelClass = 'size-64 m-12 bg-gray-500 border-12 border-gray-600',
     stickClass = 'size-24 bg-radial from-yellow-300 to-yellow-500 border-4 border-yellow-500',
   }: {
     x: number
     y: number
+    listenToMouse?: boolean
+    listenToTouch?: boolean
     panelClass?: string
     stickClass?: string
   } = $props()
@@ -101,18 +105,38 @@
   }
 
   onMount(() => {
-    on(panelElement, 'mousedown', mousePressedCallback)
-    on(stickElement, 'mousedown', mousePressedCallback)
-    on(document, 'mousemove', mouseMovedCallback)
-    on(document, 'mouseup', joystickReleasedCallback)
-
-    on(panelElement, 'touchstart', fingerPressedCallback)
-    on(stickElement, 'touchstart', fingerPressedCallback)
-    on(document, 'touchmove', fingerMovedCallback)
-    on(document, 'touchend', joystickReleasedCallback)
-    on(document, 'touchcancel', joystickReleasedCallback)
-
     joystickReleasedCallback()
+  })
+
+  let removeMouseCallbacks: (() => void)[] = []
+
+  $effect(() => {
+    if (listenToMouse) {
+      removeMouseCallbacks = [
+        on(panelElement, 'mousedown', mousePressedCallback),
+        on(stickElement, 'mousedown', mousePressedCallback),
+        on(document, 'mousemove', mouseMovedCallback),
+        on(document, 'mouseup', joystickReleasedCallback),
+      ]
+    } else {
+      removeMouseCallbacks.forEach((callback) => callback())
+    }
+  })
+
+  let removeTouchCallbacks: (() => void)[] = []
+
+  $effect(() => {
+    if (listenToTouch) {
+      removeTouchCallbacks = [
+        on(panelElement, 'touchstart', fingerPressedCallback),
+        on(stickElement, 'touchstart', fingerPressedCallback),
+        on(document, 'touchmove', fingerMovedCallback),
+        on(document, 'touchend', joystickReleasedCallback),
+        on(document, 'touchcancel', joystickReleasedCallback),
+      ]
+    } else {
+      removeTouchCallbacks.forEach((callback) => callback())
+    }
   })
 </script>
 
