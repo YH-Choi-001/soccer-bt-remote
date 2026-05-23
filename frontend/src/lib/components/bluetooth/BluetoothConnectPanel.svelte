@@ -37,9 +37,11 @@
     optionalServices: [serviceUUID],
   })
 
+  const isBluetoothSupported = BluetoothFacade.isSupported()
   let device = $state<BluetoothFacade | null>(null)
   const isConnecting = $derived(device?.isConnecting ?? false)
   const isConnected = $derived(device?.isConnected ?? false)
+  const isUUIDEditable = $derived(isBluetoothSupported && !isConnecting && !isConnected)
 
   const statusBadgeClass = $derived(
     isConnecting ? 'badge-warning' : isConnected ? 'badge-success' : 'badge-ghost border-base-300'
@@ -49,8 +51,14 @@
     console.log(`${level}: ${text}`)
   }
 
+  let isBluetoothUnsupportedDialogOpen = $state(!isBluetoothSupported)
+
   function handleError(e: unknown) {
-    onError(e instanceof Error ? e : new Error(String(e)))
+    if (!isBluetoothSupported) {
+      isBluetoothUnsupportedDialogOpen = true
+    } else {
+      onError(e instanceof Error ? e : new Error(String(e)))
+    }
   }
 
   // ── BLE logic ─────────────────────────────────────────────────────────────
@@ -64,6 +72,7 @@
       await connect()
     } catch (e: unknown) {
       addLog('error', `Scan failed: ${e}`)
+      handleError(e)
     }
   }
 
@@ -100,11 +109,12 @@
       addLog('tx', text + '\n')
     } catch (e: unknown) {
       addLog('error', `Send failed: ${e}`)
+      handleError(e)
     }
   }
 </script>
 
-<BluetoothUnsupportedDialog />
+<BluetoothUnsupportedDialog bind:isOpen={isBluetoothUnsupportedDialogOpen} />
 
 <div class="flex flex-col gap-2 sm:gap-4">
   <div class="badge gap-2 badge-sm sm:badge-md md:badge-lg {statusBadgeClass}">
@@ -123,7 +133,11 @@
 
   <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
     {#if !device?.getDevice() || !isConnected}
-      <button class="btn btn-sm btn-primary md:btn-md" onclick={startScan} disabled={isConnecting}>
+      <button
+        class="btn btn-sm btn-primary md:btn-md"
+        onclick={startScan}
+        disabled={!isBluetoothSupported || isConnecting}
+      >
         {#if isConnecting}
           <span class="loading loading-xs loading-spinner"></span> Connecting…
         {:else}
@@ -139,7 +153,7 @@
       <InputUUID
         labelText="Service"
         bind:uuid16={serviceUUID16}
-        disabled={isConnecting || isConnected}
+        disabled={!isUUIDEditable}
         classes="input-xs sm:input-sm md:input-md"
       />
 
@@ -147,7 +161,7 @@
       <InputUUID
         labelText="RX"
         bind:uuid16={rxUUID16}
-        disabled={isConnecting || isConnected}
+        disabled={!isUUIDEditable}
         classes="input-xs sm:input-sm md:input-md"
       />
 
@@ -155,7 +169,7 @@
       <InputUUID
         labelText="TX"
         bind:uuid16={txUUID16}
-        disabled={isConnecting || isConnected}
+        disabled={!isUUIDEditable}
         classes="input-xs sm:input-sm md:input-md"
       />
     </div>
