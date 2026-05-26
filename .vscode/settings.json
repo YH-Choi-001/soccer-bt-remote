@@ -8,4 +8,5 @@
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "mypy-type-checker.preferDaemon": true,
   "graphql-config.load.rootDir": "frontend",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
 }
