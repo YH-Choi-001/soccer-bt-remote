@@ -1,3 +1,8 @@
+<!--
+Control panel for the remote control.
+Contains motion control, heading control, and Bluetooth connection.
+-->
+
 <script lang="ts">
   import { requestListenToOrientation } from '$lib/orientation/orientation'
   import Serializer from '$lib/components/serializer/Serializer.svelte'
@@ -51,73 +56,108 @@
 
   const isGyroRequired: boolean = $derived(motionControl === 'gyro' || headingControl === 'gyro')
 
-  let alpha: number = $state(0)
-  let beta: number = $state(0)
-  let gamma: number = $state(0)
-  let timeStamp: number = $state(0)
+  let orientation: {
+    alpha: number
+    beta: number
+    gamma: number
+    timeStamp: number
+  } = $state({
+    alpha: 0,
+    beta: 0,
+    gamma: 0,
+    timeStamp: 0,
+  })
 
-  const angleX: number = $derived(beta)
-  const angleY: number = $derived(gamma)
-  const angleZ: number = $derived(-alpha)
+  const orientationAngles: {
+    x: number
+    y: number
+    z: number
+  } = $derived({
+    x: orientation.beta,
+    y: orientation.gamma,
+    z: -orientation.alpha,
+  })
 
   const handleOrientation = (e: DeviceOrientationEvent) => {
-    if (e.alpha != null) alpha = e.alpha
-    if (e.beta != null) beta = e.beta
-    if (e.gamma != null) gamma = e.gamma
-    if (e.timeStamp != null) timeStamp = e.timeStamp
+    if (e.alpha != null) orientation.alpha = e.alpha
+    if (e.beta != null) orientation.beta = e.beta
+    if (e.gamma != null) orientation.gamma = e.gamma
+    if (e.timeStamp != null) orientation.timeStamp = e.timeStamp
   }
 
   $effect(() => {
     if (motionControl === 'gyro') {
       joystickPosition = joystick.normalizeJoystickRelativePosition({
-        x: angleX / gyroMaxTiltAngle,
-        y: -angleY / gyroMaxTiltAngle,
+        x: orientationAngles.x / gyroMaxTiltAngle,
+        y: -orientationAngles.y / gyroMaxTiltAngle,
       })
     }
   })
 
   // -------------------- motionControl === 'keyboard' --------------------
 
-  let w: boolean = $state(false)
-  let a: boolean = $state(false)
-  let s: boolean = $state(false)
-  let d: boolean = $state(false)
+  let isKeyPressed: {
+    w: boolean
+    a: boolean
+    s: boolean
+    d: boolean
+    arrowUp: boolean
+    arrowDown: boolean
+    arrowLeft: boolean
+    arrowRight: boolean
+  } = $state({
+    w: false,
+    a: false,
+    s: false,
+    d: false,
+    arrowUp: false,
+    arrowDown: false,
+    arrowLeft: false,
+    arrowRight: false,
+  })
 
-  let arrowUp: boolean = $state(false)
-  let arrowDown: boolean = $state(false)
-  let arrowLeft: boolean = $state(false)
-  let arrowRight: boolean = $state(false)
+  const directions: {
+    up: boolean
+    down: boolean
+    left: boolean
+    right: boolean
+  } = $derived({
+    up: isKeyPressed.w || isKeyPressed.arrowUp,
+    down: isKeyPressed.s || isKeyPressed.arrowDown,
+    left: isKeyPressed.a || isKeyPressed.arrowLeft,
+    right: isKeyPressed.d || isKeyPressed.arrowRight,
+  })
 
-  let toUp = $derived(w || arrowUp)
-  let toDown = $derived(s || arrowDown)
-  let toLeft = $derived(a || arrowLeft)
-  let toRight = $derived(d || arrowRight)
+  const keyboardControlRelativeSpeed: { x: number; y: number } = $derived({
+    x: (directions.right ? 1 : 0) - (directions.left ? 1 : 0),
+    y: (directions.up ? 1 : 0) - (directions.down ? 1 : 0),
+  })
 
   const setKeyTo = (key: string, value: boolean) => {
     switch (key) {
       case 'w':
-        w = value
+        isKeyPressed.w = value
         break
       case 'a':
-        a = value
+        isKeyPressed.a = value
         break
       case 's':
-        s = value
+        isKeyPressed.s = value
         break
       case 'd':
-        d = value
+        isKeyPressed.d = value
         break
       case 'ArrowUp':
-        arrowUp = value
+        isKeyPressed.arrowUp = value
         break
       case 'ArrowDown':
-        arrowDown = value
+        isKeyPressed.arrowDown = value
         break
       case 'ArrowLeft':
-        arrowLeft = value
+        isKeyPressed.arrowLeft = value
         break
       case 'ArrowRight':
-        arrowRight = value
+        isKeyPressed.arrowRight = value
         break
     }
   }
@@ -125,15 +165,15 @@
   $effect(() => {
     if (motionControl === 'keyboard') {
       joystickPosition = joystick.normalizeJoystickRelativePosition({
-        x: toLeft && toRight ? 0 : toRight ? 1 : toLeft ? -1 : 0,
-        y: -(toUp && toDown ? 0 : toUp ? 1 : toDown ? -1 : 0),
+        x: keyboardControlRelativeSpeed.x,
+        y: -keyboardControlRelativeSpeed.y,
       })
     }
   })
 
   // -------------------- headingControl --------------------
 
-  const heading: number = $derived(headingControl === 'gyro' ? angleZ : 0)
+  const heading: number = $derived(headingControl === 'gyro' ? orientationAngles.z : 0)
   let isHeadingLocked: boolean = $state(false)
 
   // -------------------- Bluetooth --------------------
@@ -212,15 +252,15 @@
   <div class="flex flex-col gap-3">
     {#if isGyroRequired}
       <div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-4 sm:gap-6">
-        <div class="text-xs">alpha: {alpha.toFixed(angleFix)}</div>
-        <div class="text-xs">beta: {beta.toFixed(angleFix)}</div>
-        <div class="text-xs">gamma: {gamma.toFixed(angleFix)}</div>
-        <div class="text-xs">timeStamp: {Math.round(timeStamp)}</div>
+        <div class="text-xs">alpha: {orientation.alpha.toFixed(angleFix)}</div>
+        <div class="text-xs">beta: {orientation.beta.toFixed(angleFix)}</div>
+        <div class="text-xs">gamma: {orientation.gamma.toFixed(angleFix)}</div>
+        <div class="text-xs">timeStamp: {Math.round(orientation.timeStamp)}</div>
       </div>
       <div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-3 sm:gap-6">
-        <div class="text-md">angleX: {angleX.toFixed(angleFix)}</div>
-        <div class="text-md">angleY: {angleY.toFixed(angleFix)}</div>
-        <div class="text-md">angleZ: {angleZ.toFixed(angleFix)}</div>
+        <div class="text-md">angleX: {orientationAngles.x.toFixed(angleFix)}</div>
+        <div class="text-md">angleY: {orientationAngles.y.toFixed(angleFix)}</div>
+        <div class="text-md">angleZ: {orientationAngles.z.toFixed(angleFix)}</div>
       </div>
     {/if}
     <Serializer
