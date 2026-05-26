@@ -3,15 +3,13 @@
   import { on } from 'svelte/events'
 
   let {
-    x = $bindable(0),
-    y = $bindable(0),
+    position = $bindable({ x: 0, y: 0 }),
     listenToMouse = true,
     listenToTouch = true,
-    panelClass = 'size-64 m-12 bg-gray-500 border-12 border-gray-600',
-    stickClass = 'size-24 bg-radial from-yellow-300 to-yellow-500 border-4 border-yellow-500',
+    panelClass = 'size-48 m-9 border-9 md:size-64 md:m-12 md:border-12 bg-gray-500 border-gray-600',
+    stickClass = 'size-18 border-3 md:size-24 md:border-4 bg-radial from-yellow-300 to-yellow-500 border-yellow-500',
   }: {
-    x: number
-    y: number
+    position: { x: number; y: number }
     listenToMouse?: boolean
     listenToTouch?: boolean
     panelClass?: string
@@ -24,7 +22,24 @@
 
   let isJoystickPressed: boolean = $state(false)
 
-  const updateJoystickRelativePosition = (rawX: number, rawY: number) => {
+  export const normalizeJoystickRelativePosition = (pos: {
+    x: number
+    y: number
+  }): { x: number; y: number } => {
+    let x = pos.x
+    let y = pos.y
+    const mag = Math.sqrt(x * x + y * y)
+    if (mag > 1) {
+      x /= mag
+      y /= mag
+    }
+    return { x, y }
+  }
+
+  const joystickPositionAbsoluteToRelative = (
+    rawX: number,
+    rawY: number
+  ): { x: number; y: number } => {
     const panelRect = panelElement.getBoundingClientRect()
     const panelMidX = (panelRect.left + panelRect.right) / 2
     const panelMidY = (panelRect.top + panelRect.bottom) / 2
@@ -32,13 +47,7 @@
     const panelHalfHeight = panelRect.height / 2
     let relX = (rawX - panelMidX) / panelHalfWidth
     let relY = (rawY - panelMidY) / panelHalfHeight
-    const mag = Math.sqrt(relX * relX + relY * relY)
-    if (mag > 1) {
-      relX /= mag
-      relY /= mag
-    }
-    x = relX
-    y = relY
+    return { x: relX, y: relY }
   }
 
   const updateJoystickAbsoluteGraphicalPosition = (rawX: number, rawY: number) => {
@@ -62,11 +71,11 @@
   }
 
   $effect(() => {
-    updateJoystickRelativeGraphicalPosition(x, y)
+    updateJoystickRelativeGraphicalPosition(position.x, position.y)
   })
 
   const updateJoystickPosition = (rawX: number, rawY: number) => {
-    updateJoystickRelativePosition(rawX, rawY)
+    position = normalizeJoystickRelativePosition(joystickPositionAbsoluteToRelative(rawX, rawY))
   }
 
   const mousePressedCallback = (e: MouseEvent) => {
@@ -100,8 +109,7 @@
 
   const joystickReleasedCallback = () => {
     isJoystickPressed = false
-    x = 0
-    y = 0
+    position = { x: 0, y: 0 }
   }
 
   onMount(() => {
@@ -137,9 +145,11 @@
 <div class="relative touch-none" bind:this={wrapperElement}>
   <div class="z-10 rounded-full {panelClass}" bind:this={panelElement}></div>
   <div
-    class="absolute z-20 rounded-full {isJoystickPressed
-      ? 'cursor-grabbing'
-      : 'cursor-grab'} {stickClass}"
+    class="absolute z-20 rounded-full {listenToMouse
+      ? isJoystickPressed
+        ? 'cursor-grabbing'
+        : 'cursor-grab'
+      : ''} {stickClass}"
     bind:this={stickElement}
   ></div>
 </div>

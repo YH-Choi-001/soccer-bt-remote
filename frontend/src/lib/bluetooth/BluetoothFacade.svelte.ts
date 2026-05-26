@@ -7,6 +7,7 @@ export class BluetoothFacade {
   private server: BluetoothRemoteGATTServer | null = $state(null)
   private rxChar: BluetoothRemoteGATTCharacteristic | null = null
   private txChar: BluetoothRemoteGATTCharacteristic | null = $state(null)
+  private eventHandlerRemovers: (() => void)[] = []
 
   isConnecting: boolean = $state(false)
   isConnected: boolean = $derived(!!this.server?.connected)
@@ -32,12 +33,16 @@ export class BluetoothFacade {
       this.txChar = await service.getCharacteristic(txUUID)
 
       await this.txChar.startNotifications()
-      on(this.txChar, 'characteristicvaluechanged', this.onReceivedEvent)
-      on(this.device, 'gattserverdisconnected', this.onDisconnectedEvent)
+
+      this.eventHandlerRemovers = [
+        on(this.txChar, 'characteristicvaluechanged', this.onReceivedEvent),
+        on(this.device, 'gattserverdisconnected', this.onDisconnectedEvent),
+      ]
     } catch (e) {
       this.server = null
       this.rxChar = null
       this.txChar = null
+      this.eventHandlerRemovers = []
       throw e
     } finally {
       this.isConnecting = false
@@ -56,7 +61,6 @@ export class BluetoothFacade {
 
   async disconnect() {
     if (this.txChar) {
-      this.txChar.removeEventListener('characteristicvaluechanged', this.onReceivedEvent)
       await this.txChar.stopNotifications().catch(() => {})
     }
     this.server?.disconnect()
@@ -81,6 +85,7 @@ export class BluetoothFacade {
     this.server = null
     this.rxChar = null
     this.txChar = null
+    this.eventHandlerRemovers.forEach((remover) => remover())
   }
 
   static async scan(

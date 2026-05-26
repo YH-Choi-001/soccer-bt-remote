@@ -1,8 +1,8 @@
 <!--
-Mobile demo page with gyro.
+Mobile demo page with joystick.
 -->
 <script lang="ts">
   import ControlPanel from '$lib/components/ui/ControlPanel.svelte'
 </script>
 
-<ControlPanel motionControl="gyro" headingControl="gyro" />
+<ControlPanel motionControl="joystick" headingControl="gyro" />

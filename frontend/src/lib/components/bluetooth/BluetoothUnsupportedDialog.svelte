@@ -1,9 +1,15 @@
 <script lang="ts">
   import NoButtonModalDialog from '$lib/components/ui/NoButtonModalDialog.svelte'
   import { BluetoothFacade } from '$lib/bluetooth/BluetoothFacade.svelte'
+
+  let {
+    isOpen = $bindable(!BluetoothFacade.isSupported()),
+  }: {
+    isOpen?: boolean
+  } = $props()
 </script>
 
-<NoButtonModalDialog isOpen={!BluetoothFacade.isSupported()}>
+<NoButtonModalDialog bind:isOpen>
   <h3 class="text-lg font-bold">Your browser does not support Bluetooth.</h3>
   <p class="py-4">
     Please use
