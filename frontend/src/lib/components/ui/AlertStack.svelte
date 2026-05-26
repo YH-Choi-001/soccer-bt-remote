@@ -14,12 +14,14 @@
     <div animate:flip={{ duration: 300 }}>
       <div in:fly={{ y: -50, duration: 400 }} out:fly={{ y: -50, duration: 400 }}>
         <Alert variant={alert.type} classes="alert-soft shadow-lg mb-2">
-          {#if alert.title}
-            <h3>{alert.title}</h3>
-          {/if}
-          {#if alert.message}
-            <div>{alert.message}</div>
-          {/if}
+          <div class="flex flex-col items-start gap-2 md:flex-row md:items-center">
+            {#if alert.title}
+              <h3>{alert.title}</h3>
+            {/if}
+            {#if alert.message}
+              <div>{alert.message}</div>
+            {/if}
+          </div>
           <button class="btn btn-ghost btn-xs" onclick={() => removeAlert(alert.id)}> ✕ </button>
         </Alert>
       </div>
