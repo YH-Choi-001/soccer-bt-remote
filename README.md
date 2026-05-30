@@ -1,6 +1,8 @@
-# Soccer Remote Controller
+# Soccer Bluetooth Remote Controller
 
 Remote control soccer robot from mobile phone via bluetooth.
+
+Deployed [here](https://sbrc.yhchoi.top)
 
 ## Architecture
 
@@ -13,23 +15,64 @@ Remote control soccer robot from mobile phone via bluetooth.
 
 ## Development
 
+### Run Dev Server
+
 ```bash
-# Start the web server (mobile phone app)
+# Enter frontend/ directory.
+cd frontend
+
+# Start the web server (mobile phone app).
 pnpm run dev --host
 
-# Connect to the web server from mobile phone
-# Open https://192.168.X.X:5173/ in mobile phone browser
-# You may need to allow the connection in the mobile phone browser
+# Connect to the web server from mobile phone.
+# Open https://192.168.X.X:5173/ in mobile phone browser.
+# Note we use HTTPS instead of HTTP, because
+# gyro and bluetooth data access from the browser requires HTTPS.
+```
 
-# Check for mobile permission popup
-# Wait for the mobile permission popup
+### Run Checks
 
-# Click the "CLICK ME TO START SENSOR CAPTURE" button
-# This will request permission to access motion and orientation sensors
+#### Static Type Check
 
-# Click "Allow" to grant permission
-# Wait for the mobile permission popup
+```bash
+# Enter frontend/ directory.
+cd frontend
 
-# After allowing, the sensors should start capturing data
-# You should see the sensor data updating in the web browser
+# Run static type check.
+pnpm run check
+```
+
+#### Linting and Formatting
+
+```bash
+# Enter frontend/ directory.
+cd frontend
+
+# Run linting.
+pnpm run lint
+
+# Fix linting errors.
+pnpm run format
+```
+
+### Run Tests
+
+#### Unit Tests
+
+```bash
+# Enter frontend/ directory.
+cd frontend
+
+# Run unit tests.
+pnpm test:unit
+```
+
+#### End-to-End (E2E) Tests
+
+```bash
+# Enter frontend/ directory.
+cd frontend
+
+# Run E2E tests.
+pnpm test:e2e
 ```
