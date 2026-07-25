@@ -6,7 +6,15 @@ const config = {
     // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
     runes: ({ filename }) => (filename.split(/[/\\]/).includes('node_modules') ? undefined : true),
   },
-  kit: { adapter: adapter() },
+  kit: {
+    adapter: adapter(),
+    csp: {
+      mode: 'hash', // Generates SHA-256 hashes for inline scripts
+      directives: {
+        'script-src': ['self'], // No 'unsafe-inline' needed!
+      },
+    },
+  },
 }
 
 export default config
