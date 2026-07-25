@@ -4,6 +4,6 @@
     X-Content-Type-Options: nosniff
     Referrer-Policy: strict-origin-when-cross-origin
     Strict-Transport-Security: max-age=31536000; includeSubDomains
-    Content-Security-Policy: default-src https: 'self'; style-src https: 'self' 'unsafe-inline'; script-src https: 'self' 'unsafe-inline'; font-src https: 'self' https://fonts.googleapis.com
+    Content-Security-Policy: default-src https: 'self'; style-src https: 'self' 'unsafe-inline'; script-src https: 'self' 'unsafe-inline'; font-src https: 'self' https://fonts.googleapis.com; img-src https: 'self' 'unsafe-inline'
     X-Frame-Options: SAMEORIGIN
     Permissions-Policy: accelerometer=(), ambient-light-sensor=(), bluetooth=(self), camera=(), geolocation=(), gyroscope=(self), magnetometer=(self), microphone=(), payment=(), screen-wake-lock=(self), serial=(self)
