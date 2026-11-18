@@ -4,12 +4,17 @@ Remote control soccer robot from mobile phone via bluetooth.
 
 Deployed [here](https://sbrc.yhchoi.top)
 
+Both Bluetooth Low Energy (BLE, via Web Bluetooth) and Bluetooth Classic
+(RFCOMM / Serial Port Profile, via Web Serial) are supported.
+See the [Bluetooth Classic setup guide](https://sbrc.yhchoi.top/bluetooth-classic)
+for pairing instructions.
+
 ## Architecture
 
 ```
 +----------------+   +-------------+   +-------------+
 |  Mobile Phone  |---| Bluetooth   |---|   Robot     |
-| (App)          |   |             |   | (Firmware)  |
+| (App)          |   | BLE/Classic |   | (Firmware)  |
 +----------------+   +-------------+   +-------------+
 ```
 
