@@ -1,11 +1,16 @@
 <!--
   Bluetooth debug page.
-  Interactive terminal for 2-way BLE communication via Nordic UART Service (NUS).
+  Interactive terminal for 2-way communication over BLE (GATT UART service)
+  or Bluetooth Classic (RFCOMM / Serial Port Profile).
 -->
 
 <script lang="ts">
+  import { resolve } from '$app/paths'
   import { BluetoothFacade } from '$lib/bluetooth/BluetoothFacade.svelte'
+  import { SerialFacade, SPP_UUID16 } from '$lib/bluetooth/SerialFacade.svelte'
+  import type { BluetoothLink, BluetoothMode } from '$lib/bluetooth/BluetoothLink'
   import BluetoothUnsupportedDialog from '$lib/components/bluetooth/BluetoothUnsupportedDialog.svelte'
+  import BluetoothModeSelector from '$lib/components/bluetooth/BluetoothModeSelector.svelte'
   import InputUUID from '$lib/components/ui/InputUUID.svelte'
 
   // ── Nordic UART Service (NUS) UUIDs ───────────────────────────────────────
@@ -19,12 +24,28 @@
   let serviceUUID16 = $state('FFF0')
   let rxUUID16 = $state('FFF2')
   let txUUID16 = $state('FFF1')
+  let classicServiceUUID16 = $state(SPP_UUID16)
 
   let serviceUUID = $derived(BluetoothFacade.uuid16To128(serviceUUID16))
   let rxUUID = $derived(BluetoothFacade.uuid16To128(rxUUID16))
   let txUUID = $derived(BluetoothFacade.uuid16To128(txUUID16))
+  let classicServiceUUID = $derived(BluetoothFacade.uuid16To128(classicServiceUUID16))
 
-  let device = $state<BluetoothFacade | null>(null)
+  const isSupported: Record<BluetoothMode, boolean> = {
+    ble: BluetoothFacade.isSupported(),
+    classic: SerialFacade.isSupported(),
+  }
+  const initialMode: BluetoothMode = !isSupported.ble && isSupported.classic ? 'classic' : 'ble'
+  let mode: BluetoothMode = $state(initialMode)
+  let isUnsupportedDialogOpen = $state(!isSupported[initialMode])
+
+  function changeMode(newMode: BluetoothMode) {
+    mode = newMode
+    device = null
+    if (!isSupported[newMode]) isUnsupportedDialogOpen = true
+  }
+
+  let device = $state<BluetoothLink | null>(null)
   let isConnecting = $derived(device?.isConnecting ?? false)
   let isConnected = $derived(device?.isConnected ?? false)
   let log: LogEntry[] = $state([])
@@ -103,25 +124,36 @@
     }, 0)
   }
 
-  // ── BLE logic ─────────────────────────────────────────────────────────────
+  // ── Connection logic ──────────────────────────────────────────────────────
   async function startScan() {
     try {
       addLog('system', 'Scanning for devices…')
-      device = await BluetoothFacade.scan(serviceUUID, scanOptions)
-      device.onReceived = onReceive
-      device.onDisconnected = onDisconnect
-      addLog('system', `Device selected: ${device.getDevice()?.name}`)
-      await connect()
+      if (mode === 'ble') {
+        const ble = await BluetoothFacade.scan(serviceUUID, scanOptions)
+        device = attach(ble)
+        await connect('Connecting to GATT server…', () => ble.connect(rxUUID, txUUID))
+      } else {
+        const classic = await SerialFacade.request(classicServiceUUID)
+        device = attach(classic)
+        await connect('Opening RFCOMM channel…', () => classic.connect())
+      }
     } catch (e) {
       addLog('error', `Scan failed: ${e}`)
     }
   }
 
-  async function connect() {
+  function attach<T extends BluetoothLink>(link: T): T {
+    link.onReceived = onReceive
+    link.onDisconnected = onDisconnect
+    addLog('system', `Device selected: ${link.getName()}`)
+    return link
+  }
+
+  async function connect(message: string, open: () => Promise<void>) {
     try {
-      addLog('system', 'Connecting to GATT server…')
-      await device?.connect(rxUUID, txUUID)
-      addLog('system', 'Ready — notifications active.')
+      addLog('system', message)
+      await open()
+      addLog('system', 'Ready.')
     } catch (e) {
       addLog('error', `Connection failed: ${e}`)
     }
@@ -164,7 +196,7 @@
   <title>BT Terminal | Debug</title>
 </svelte:head>
 
-<BluetoothUnsupportedDialog />
+<BluetoothUnsupportedDialog {mode} bind:isOpen={isUnsupportedDialogOpen} />
 
 <!-- data-theme="night" scopes the DaisyUI dark terminal theme to this page -->
 <div
@@ -177,7 +209,7 @@
     <div class="flex items-center gap-2">
       <span class="text-2xl text-primary">⬡</span>
       <h1 class="m-0 text-sm font-semibold tracking-widest text-base-content uppercase">
-        BLE Terminal
+        BT Terminal
       </h1>
     </div>
 
@@ -187,9 +219,9 @@
       {#if isConnecting}
         Connecting…
       {:else if isConnected}
-        {device?.getDevice()?.name ?? 'Connected'}
-      {:else if device?.getDevice()}
-        {device.getDevice()?.name} — Disconnected
+        {device?.getName() ?? 'Connected'}
+      {:else if device}
+        {device.getName()} — Disconnected
       {:else}
         No device
       {/if}
@@ -199,8 +231,17 @@
   <!-- ── Controls ───────────────────────────────────────────────────────── -->
   <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
     <div class="flex flex-wrap gap-2">
-      {#if !device?.getDevice() || !isConnected}
-        <button class="btn btn-sm btn-primary" onclick={startScan} disabled={isConnecting}>
+      <BluetoothModeSelector
+        bind:mode={() => mode, changeMode}
+        disabled={isConnecting || isConnected}
+        classes="btn-sm"
+      />
+      {#if !device || !isConnected}
+        <button
+          class="btn btn-sm btn-primary"
+          onclick={startScan}
+          disabled={!isSupported[mode] || isConnecting}
+        >
           {#if isConnecting}
             <span class="loading loading-xs loading-spinner"></span> Connecting…
           {:else}
@@ -215,18 +256,28 @@
       <button class="btn btn-ghost btn-sm" onclick={() => (log = [])}> 🗑 Clear </button>
     </div>
     <div class="flex flex-wrap items-center gap-3 md:gap-6">
-      <!-- service UUID -->
-      <InputUUID
-        labelText="Service"
-        bind:uuid16={serviceUUID16}
-        disabled={isConnecting || isConnected}
-      />
+      {#if mode === 'classic'}
+        <!-- RFCOMM service class UUID (Serial Port Profile by default) -->
+        <InputUUID
+          labelText="Service"
+          bind:uuid16={classicServiceUUID16}
+          disabled={isConnecting || isConnected}
+        />
+        <a class="link text-xs link-info" href={resolve('/bluetooth-classic')}>Setup guide</a>
+      {:else}
+        <!-- service UUID -->
+        <InputUUID
+          labelText="Service"
+          bind:uuid16={serviceUUID16}
+          disabled={isConnecting || isConnected}
+        />
 
-      <!-- rx UUID -->
-      <InputUUID labelText="RX" bind:uuid16={rxUUID16} disabled={isConnecting || isConnected} />
+        <!-- rx UUID -->
+        <InputUUID labelText="RX" bind:uuid16={rxUUID16} disabled={isConnecting || isConnected} />
 
-      <!-- tx UUID -->
-      <InputUUID labelText="TX" bind:uuid16={txUUID16} disabled={isConnecting || isConnected} />
+        <!-- tx UUID -->
+        <InputUUID labelText="TX" bind:uuid16={txUUID16} disabled={isConnecting || isConnected} />
+      {/if}
     </div>
   </div>
 

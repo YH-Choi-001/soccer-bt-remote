@@ -1,7 +1,8 @@
 import { on } from 'svelte/events'
+import type { BluetoothLink } from './BluetoothLink'
 
 // ── Bluetooth facade class (singleton) ─────────────────────────────────
-export class BluetoothFacade {
+export class BluetoothFacade implements BluetoothLink {
   private readonly device: BluetoothDevice
   private readonly serviceUUID: BluetoothServiceUUID
   private server: BluetoothRemoteGATTServer | null = $state(null)
@@ -71,6 +72,10 @@ export class BluetoothFacade {
 
   getDevice(): BluetoothDevice | null {
     return this.device
+  }
+
+  getName(): string {
+    return this.device.name ?? 'Unknown device'
   }
 
   private readonly onReceivedEvent = (event: Event) => {
