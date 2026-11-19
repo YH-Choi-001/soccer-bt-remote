@@ -5,7 +5,7 @@
   let { children }: { children: Snippet } = $props()
 </script>
 
-<div class="flex min-h-svh w-full flex-col">
+<div class="flex min-h-(--app-height) w-full flex-col">
   <div class="mb-6 flex-grow">
     {@render children()}
   </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { on } from 'svelte/events'
+  import { landscapeRotation } from '$lib/rotation/landscapeRotation.svelte'
 
   let {
     position = $bindable({ x: 0, y: 0 }),
@@ -16,7 +17,6 @@
     stickClass?: string
   } = $props()
 
-  let wrapperElement: HTMLElement
   let panelElement: HTMLElement
   let stickElement: HTMLElement
 
@@ -36,6 +36,9 @@
     return { x, y }
   }
 
+  // Pointer positions arrive in screen coordinates, but the app may be drawn rotated
+  // (see $lib/rotation/landscapeRotation.svelte.ts). The panel's centre is the same in both frames,
+  // so measure the offset from it on screen, then rotate that offset into the panel's own frame.
   const joystickPositionAbsoluteToRelative = (
     rawX: number,
     rawY: number
@@ -43,31 +46,23 @@
     const panelRect = panelElement.getBoundingClientRect()
     const panelMidX = (panelRect.left + panelRect.right) / 2
     const panelMidY = (panelRect.top + panelRect.bottom) / 2
-    const panelHalfWidth = panelRect.width / 2
-    const panelHalfHeight = panelRect.height / 2
-    let relX = (rawX - panelMidX) / panelHalfWidth
-    let relY = (rawY - panelMidY) / panelHalfHeight
-    return { x: relX, y: relY }
+    const local = landscapeRotation.screenToContent(rawX - panelMidX, rawY - panelMidY)
+    return {
+      x: local.x / (panelElement.offsetWidth / 2),
+      y: local.y / (panelElement.offsetHeight / 2),
+    }
   }
 
-  const updateJoystickAbsoluteGraphicalPosition = (rawX: number, rawY: number) => {
-    const wrapperRect = wrapperElement.getBoundingClientRect()
-    const stickRect = stickElement.getBoundingClientRect()
-    const localLeft = rawX - wrapperRect.left - stickRect.width / 2
-    const localTop = rawY - wrapperRect.top - stickRect.height / 2
+  // Uses layout offsets (relative to the wrapper, unaffected by CSS transforms).
+  const updateJoystickRelativeGraphicalPosition = (relX: number, relY: number) => {
+    const panelHalfWidth = panelElement.offsetWidth / 2
+    const panelHalfHeight = panelElement.offsetHeight / 2
+    const panelMidX = panelElement.offsetLeft + panelHalfWidth
+    const panelMidY = panelElement.offsetTop + panelHalfHeight
+    const localLeft = panelMidX + relX * panelHalfWidth - stickElement.offsetWidth / 2
+    const localTop = panelMidY + relY * panelHalfHeight - stickElement.offsetHeight / 2
     stickElement.style.left = `${localLeft}px`
     stickElement.style.top = `${localTop}px`
-  }
-
-  const updateJoystickRelativeGraphicalPosition = (relX: number, relY: number) => {
-    const panelRect = panelElement.getBoundingClientRect()
-    const panelMidX = (panelRect.left + panelRect.right) / 2
-    const panelMidY = (panelRect.top + panelRect.bottom) / 2
-    const panelHalfWidth = panelRect.width / 2
-    const panelHalfHeight = panelRect.height / 2
-    const rawX = relX * panelHalfWidth + panelMidX
-    const rawY = relY * panelHalfHeight + panelMidY
-    updateJoystickAbsoluteGraphicalPosition(rawX, rawY)
   }
 
   $effect(() => {
@@ -142,7 +137,7 @@
   })
 </script>
 
-<div class="relative touch-none" bind:this={wrapperElement}>
+<div class="relative touch-none">
   <div class="z-10 rounded-full {panelClass}" bind:this={panelElement}></div>
   <div
     class="absolute z-20 rounded-full {listenToMouse

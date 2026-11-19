@@ -2,3 +2,49 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 @plugin 'daisyui/index.js';
+
+/*
+ * Rotated landscape mode (see $lib/rotation/landscapeRotation.svelte.ts).
+ *
+ * The viewport stays portrait, but the app is drawn rotated 90° clockwise into a box whose
+ * width and height are swapped. These rules are unlayered so they win over daisyUI/Tailwind.
+ */
+
+/* Height of the visible "screen"; use this instead of 100svh. */
+:root {
+  --app-height: 100svh;
+}
+
+:root.rotated-landscape {
+  --app-height: 100vw;
+  overscroll-behavior: none;
+}
+
+/*
+ * Modal dialogs render in the top layer, outside .app-viewport, so they are rotated separately.
+ * Rotating about the top-left corner and shifting right by the viewport width puts the
+ * swapped box exactly over the viewport.
+ */
+:root.rotated-landscape .app-viewport,
+:root.rotated-landscape .modal {
+  position: fixed;
+  inset: 0 auto auto 0;
+  width: 100dvh;
+  height: 100vw;
+  transform-origin: top left;
+  transform: translateX(100vw) rotate(90deg);
+}
+
+:root.rotated-landscape .app-viewport {
+  overflow: hidden;
+}
+
+:root.rotated-landscape .app-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+:root.rotated-landscape .modal-box {
+  max-height: calc(100vw - 2rem);
+}
