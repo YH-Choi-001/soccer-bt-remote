@@ -10,6 +10,7 @@ Home page.
 
   let {
     options,
+    children,
   }: {
     options: Array<{
       title: string
@@ -17,6 +18,7 @@ Home page.
       link: ResolvedPathname
       image?: Snippet
     }>
+    children?: Snippet
   } = $props()
 </script>
 
@@ -42,5 +44,9 @@ Home page.
         {@render card(option.title, option.subtitle, option.link, option.image)}
       {/each}
     </div>
+
+    {#if children}
+      {@render children()}
+    {/if}
   </div>
 </FooterWrappedPage>

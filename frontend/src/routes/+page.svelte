@@ -20,4 +20,11 @@ Home page.
   ]
 </script>
 
-<OptionsPage {options} />
+<OptionsPage {options}>
+  <p class="mt-8 text-center text-sm">
+    Robot uses Bluetooth Classic (e.g. HC-05)?
+    <a class="link link-info link-hover" href={resolve('/bluetooth-classic')}
+      >Read the setup guide</a
+    >.
+  </p>
+</OptionsPage>
