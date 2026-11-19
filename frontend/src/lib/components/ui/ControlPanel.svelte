@@ -198,37 +198,50 @@ Contains motion control, heading control, and Bluetooth connection.
   onkeyup={(e: KeyboardEvent) => setKeyTo(e.key, false)}
 />
 
-<div class="flex w-full flex-col gap-2 p-4 md:gap-4 md:p-8">
-  <h1 class="hidden text-center text-2xl md:block">Welcome to Soccer BT Remote</h1>
+<!--
+  Portrait: everything stacked in one column.
+  Landscape (landscape-ui): joystick on the left at full screen height; Bluetooth, sensor and
+  debug info on the right, with the debug info scrolling if it does not fit.
+-->
+<div
+  class="flex w-full flex-col gap-2 p-4 md:gap-4 md:p-8 landscape-ui:grid landscape-ui:h-(--app-height) landscape-ui:grid-cols-[auto_minmax(0,1fr)] landscape-ui:grid-rows-[auto_auto_minmax(0,1fr)] landscape-ui:gap-x-6 landscape-ui:gap-y-2 landscape-ui:p-3"
+>
+  <h1 class="hidden text-center text-2xl md:block landscape-ui:hidden">
+    Welcome to Soccer BT Remote
+  </h1>
 
-  <BluetoothConnectPanel
-    bind:serviceUUID16
-    bind:rxUUID16
-    bind:txUUID16
-    onConnected={() => {
-      if (interval) clearInterval(interval)
-      interval = setInterval(sendPacket, sendIntervalMs)
-    }}
-    onDisconnected={() => {
-      if (interval) clearInterval(interval)
-      interval = undefined
-      addAlert('Disconnected', 'Disconnected from bluetooth device', 'info')
-    }}
-    onError={(e) => {
-      addAlert(e.name, e.message, 'error')
-    }}
-    bind:this={bluetooth}
-  />
+  <div class="landscape-ui:col-start-2 landscape-ui:row-start-1">
+    <BluetoothConnectPanel
+      bind:serviceUUID16
+      bind:rxUUID16
+      bind:txUUID16
+      onConnected={() => {
+        if (interval) clearInterval(interval)
+        interval = setInterval(sendPacket, sendIntervalMs)
+      }}
+      onDisconnected={() => {
+        if (interval) clearInterval(interval)
+        interval = undefined
+        addAlert('Disconnected', 'Disconnected from bluetooth device', 'info')
+      }}
+      onError={(e) => {
+        addAlert(e.name, e.message, 'error')
+      }}
+      bind:this={bluetooth}
+    />
+  </div>
 
   {#if isGyroRequired}
-    <div class="flex flex-col justify-between gap-2 sm:flex-row sm:gap-0">
+    <div
+      class="flex flex-col justify-between gap-2 sm:flex-row sm:gap-0 landscape-ui:col-start-2 landscape-ui:row-start-2 landscape-ui:flex-row landscape-ui:flex-wrap landscape-ui:items-center landscape-ui:gap-x-4"
+    >
       <button
         class="btn btn-sm btn-primary md:btn-md"
         onclick={() => requestListenToOrientation(handleOrientation)}>Start Sensor Capture</button
       >
 
       {#if headingControl !== null}
-        <label class="flex items-center gap-2">
+        <label class="flex items-center gap-2 whitespace-nowrap">
           <input
             type="checkbox"
             class="checkbox checkbox-md checkbox-primary sm:checkbox-lg"
@@ -240,7 +253,9 @@ Contains motion control, heading control, and Bluetooth connection.
     </div>
   {/if}
 
-  <div class="align-center flex justify-between md:justify-center">
+  <div
+    class="align-center flex justify-between md:justify-center landscape-ui:col-start-1 landscape-ui:row-[1/-1] landscape-ui:items-center"
+  >
     <Joystick
       bind:position={joystickPosition}
       listenToMouse={motionControl === 'joystick'}
@@ -249,15 +264,21 @@ Contains motion control, heading control, and Bluetooth connection.
     />
   </div>
 
-  <div class="flex flex-col gap-3">
+  <div
+    class="flex flex-col gap-3 landscape-ui:col-start-2 landscape-ui:row-start-3 landscape-ui:gap-2 landscape-ui:overflow-y-auto landscape-ui:pb-12"
+  >
     {#if isGyroRequired}
-      <div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-4 sm:gap-6">
+      <div
+        class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-4 sm:gap-6 landscape-ui:grid-flow-row landscape-ui:grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] landscape-ui:gap-x-4 landscape-ui:gap-y-1"
+      >
         <div class="text-xs">alpha: {orientation.alpha.toFixed(angleFix)}</div>
         <div class="text-xs">beta: {orientation.beta.toFixed(angleFix)}</div>
         <div class="text-xs">gamma: {orientation.gamma.toFixed(angleFix)}</div>
         <div class="text-xs">timeStamp: {Math.round(orientation.timeStamp)}</div>
       </div>
-      <div class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-3 sm:gap-6">
+      <div
+        class="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-cols-3 sm:gap-6 landscape-ui:grid-flow-row landscape-ui:grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] landscape-ui:gap-x-4 landscape-ui:gap-y-1"
+      >
         <div class="text-md">angleX: {orientationAngles.x.toFixed(angleFix)}</div>
         <div class="text-md">angleY: {orientationAngles.y.toFixed(angleFix)}</div>
         <div class="text-md">angleZ: {orientationAngles.z.toFixed(angleFix)}</div>

@@ -7,8 +7,10 @@
     position = $bindable({ x: 0, y: 0 }),
     listenToMouse = true,
     listenToTouch = true,
-    panelClass = 'size-48 m-9 border-9 md:size-64 md:m-12 md:border-12 bg-gray-500 border-gray-600',
-    stickClass = 'size-18 border-3 md:size-24 md:border-4 bg-radial from-yellow-300 to-yellow-500 border-yellow-500',
+    // In landscape, fill the screen height: --app-height minus this panel's 4.5rem of margin and
+    // 1.5rem of page padding (ControlPanel's landscape-ui:p-3), capped for tablets.
+    panelClass = 'size-48 m-9 border-9 md:size-64 md:m-12 md:border-12 bg-gray-500 border-gray-600 landscape-ui:m-9 landscape-ui:border-9 landscape-ui:size-[min(calc(var(--app-height)_-_6rem),24rem)]',
+    stickClass = 'size-18 border-3 md:size-24 md:border-4 bg-radial from-yellow-300 to-yellow-500 border-yellow-500 landscape-ui:size-18 landscape-ui:border-3',
   }: {
     position: { x: number; y: number }
     listenToMouse?: boolean
@@ -67,6 +69,16 @@
 
   $effect(() => {
     updateJoystickRelativeGraphicalPosition(position.x, position.y)
+  })
+
+  // The panel changes size when the layout switches between portrait and landscape,
+  // so re-place the stick to keep it aligned with the panel.
+  $effect(() => {
+    const observer = new ResizeObserver(() =>
+      updateJoystickRelativeGraphicalPosition(position.x, position.y)
+    )
+    observer.observe(panelElement)
+    return () => observer.disconnect()
   })
 
   const updateJoystickPosition = (rawX: number, rawY: number) => {

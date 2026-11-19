@@ -148,8 +148,8 @@
 
 <BluetoothUnsupportedDialog {mode} bind:isOpen={isBluetoothUnsupportedDialogOpen} />
 
-<div class="flex flex-col gap-2 sm:gap-4">
-  <div class="flex flex-wrap items-center gap-2 sm:gap-4">
+<div class="flex flex-col gap-2 sm:gap-4 landscape-ui:gap-2">
+  <div class="flex flex-wrap items-center gap-2 sm:gap-4 landscape-ui:gap-2">
     <BluetoothModeSelector
       bind:mode={() => mode, changeMode}
       disabled={isConnecting || isConnected}
@@ -175,7 +175,10 @@
     {/if}
   </div>
 
-  <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+  <!-- In landscape, the button and UUID inputs share one wrapping row to save height. -->
+  <div
+    class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4 landscape-ui:flex-row landscape-ui:flex-wrap landscape-ui:items-center landscape-ui:justify-start landscape-ui:gap-2"
+  >
     {#if !device || !isConnected}
       <button
         class="btn btn-sm btn-primary md:btn-md"
@@ -194,7 +197,7 @@
       </button>
     {/if}
 
-    <div class="flex flex-wrap items-center gap-3 md:gap-6">
+    <div class="flex flex-wrap items-center gap-3 md:gap-6 landscape-ui:contents">
       {#if mode === 'classic'}
         <!-- RFCOMM service class UUID (Serial Port Profile by default) -->
         <InputUUID

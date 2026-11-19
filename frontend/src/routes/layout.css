@@ -10,6 +10,20 @@
  * width and height are swapped. These rules are unlayered so they win over daisyUI/Tailwind.
  */
 
+/*
+ * `landscape-ui:` applies when the user sees a landscape layout on a touch device: either the
+ * viewport really is landscape, or the app is drawn rotated. Media queries alone cannot detect
+ * the rotated case because the viewport stays portrait.
+ */
+@custom-variant landscape-ui {
+  @media (orientation: landscape) and (pointer: coarse) {
+    @slot;
+  }
+  &:where(.rotated-landscape *) {
+    @slot;
+  }
+}
+
 /* Height of the visible "screen"; use this instead of 100svh. */
 :root {
   --app-height: 100svh;
