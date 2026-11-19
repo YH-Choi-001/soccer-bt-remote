@@ -33,7 +33,7 @@ Bluetooth Classic setup guide.
 
     <h2>1. Check your browser</h2>
     <p>
-      Bluetooth Classic uses the browser's Web Serial API. It is available only in Chromium-based
+      Bluetooth Classic uses the browser's Web Serial API. It works in these Chromium-based
       browsers:
     </p>
     <div class="not-prose overflow-x-auto">
@@ -64,6 +64,13 @@ Bluetooth Classic setup guide.
           </tr>
         </tbody>
       </table>
+    </div>
+    <div role="alert" class="not-prose mt-4 alert alert-soft alert-warning">
+      <span>
+        <strong>Firefox on macOS can't send commands yet.</strong> Firefox 151 and later can connect and
+        receive messages from the robot, but the commands it sends never reach the robot. Use Chrome,
+        Edge, or Opera instead.
+      </span>
     </div>
     <p>
       The page must be opened over <code>https://</code>. The deployed site already uses HTTPS.
@@ -154,7 +161,11 @@ Bluetooth Classic setup guide.
       </li>
       <li>
         <strong>Connection fails or drops immediately.</strong> A Classic module accepts one connection
-        at a time. Close any other app or device connected to it, then try again.
+        at a time. Close any other app, device, or browser connected to it, then try again.
+      </li>
+      <li>
+        <strong>The robot sends messages but ignores commands.</strong> If you are using Firefox on macOS,
+        this is a known Firefox problem (see step 1). Switch to Chrome, Edge, or Opera.
       </li>
       <li>
         <strong>The robot receives garbled data.</strong> The baud rate between the Bluetooth module and
