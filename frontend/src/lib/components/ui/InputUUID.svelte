@@ -27,5 +27,6 @@
       {disabled}
     />
   </label>
-  <div class="validator-hint">4 HEX digits</div>
+  <!-- In landscape the hint takes no space; an invalid input still gets a red border. -->
+  <div class="validator-hint landscape-ui:hidden">4 HEX digits</div>
 </div>
