@@ -3,7 +3,7 @@ Bluetooth Classic setup guide.
 -->
 
 <script lang="ts">
-  import { resolve } from '$app/paths'
+  import { asset, resolve } from '$app/paths'
   import FooterWrappedPage from '$lib/components/ui/FooterWrappedPage.svelte'
   import { SPP_UUID16 } from '$lib/bluetooth/SerialFacade.svelte'
 </script>
@@ -151,6 +151,21 @@ Bluetooth Classic setup guide.
     <p>
       The browser does not tell the page the device's Bluetooth name, so the badge shows "Bluetooth
       Classic device" instead of the module name.
+    </p>
+
+    <h2>5. Program the robot</h2>
+    <p>
+      The controller sends one line of text every 100 milliseconds, in the form
+      <code>A000S000H000E</code>: the movement angle (<code>A</code>, 0–359), the speed (<code
+        >S</code
+      >, 0–255) and the heading to face (<code>H</code>, 0–359). Each number is padded to three
+      digits and each line ends with a newline.
+    </p>
+    <p>
+      To get started, <a href={asset('/examples/sample.ino')} download="sample.ino"
+        >download the sample Arduino sketch</a
+      >. It reads these lines from the Bluetooth module on <code>Serial1</code> and stops the robot if
+      no command arrives for 1.5 seconds. Fill in the robot-specific functions for your motors and compass.
     </p>
 
     <h2>Troubleshooting</h2>

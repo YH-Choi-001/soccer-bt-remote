@@ -9,6 +9,28 @@ Both Bluetooth Low Energy (BLE, via Web Bluetooth) and Bluetooth Classic
 See the [Bluetooth Classic setup guide](https://sbrc.yhchoi.top/bluetooth-classic)
 for pairing instructions.
 
+## Sample Robot Firmware
+
+A sample Arduino sketch that turns the controller's commands into robot motion is
+available at [`frontend/static/examples/sample.ino`](frontend/static/examples/sample.ino)
+([download](https://sbrc.yhchoi.top/examples/sample.ino)).
+Fill in the robot-specific functions (`startRobot`, `getHeading` and `setMotion`)
+for your hardware.
+
+The controller sends one line every 100 ms over the Bluetooth serial link:
+
+```
+A<angle>S<speed>H<heading>E\n
+```
+
+| Field     | Range   | Meaning                                  |
+| --------- | ------- | ---------------------------------------- |
+| `angle`   | 000–359 | Direction to move, in degrees            |
+| `speed`   | 000–255 | Movement speed                           |
+| `heading` | 000–359 | Direction the robot should face, degrees |
+
+Each number is zero-padded to three digits, e.g. `A090S128H000E`.
+
 ## Architecture
 
 ```
